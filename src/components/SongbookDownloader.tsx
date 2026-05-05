@@ -14,7 +14,7 @@ export default function SongbookDownloader({ cifras, config }: Props) {
   const doc = <SongbookPdfDocument cifras={cifras} config={config} />
   const [instance, update] = usePDF({ document: doc })
 
-  const ids = cifras.map((c) => c.id + c.transpose + c.capo + JSON.stringify(c.lineColors ?? {})).join(',')
+  const ids = cifras.map((c) => c.id + c.transpose + c.capo + JSON.stringify(c.lineColors ?? {}) + JSON.stringify(c.lineStyles ?? {})).join(',')
 
   useEffect(() => {
     update(<SongbookPdfDocument cifras={cifras} config={config} />)

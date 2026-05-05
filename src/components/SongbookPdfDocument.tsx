@@ -20,6 +20,17 @@ function chunkLines<T>(arr: T[], n: number): T[][] {
   return Array.from({ length: n }, (_, i) => arr.slice(i * size, i * size + size))
 }
 
+function courierFont(baseBold: boolean, bold?: boolean, italic?: boolean) {
+  const b = baseBold || bold
+  if (b && italic) return 'Courier-BoldOblique'
+  if (b) return 'Courier-Bold'
+  if (italic) return 'Courier-Oblique'
+  return 'Courier'
+}
+function helveticaBoldFont(italic?: boolean) {
+  return italic ? 'Helvetica-BoldOblique' : 'Helvetica-Bold'
+}
+
 function makeStyles(fontSize: number) {
   return StyleSheet.create({
     page:         { padding: 44, fontFamily: 'Courier', fontSize, backgroundColor: '#fff' },
@@ -43,18 +54,19 @@ function renderLine(
   transpose: number,
   s: ReturnType<typeof makeStyles>,
   customColor?: string,
+  customStyle?: { bold?: boolean; italic?: boolean },
 ) {
   const cc = customColor ? { color: customColor } : {}
   if (line.type === 'empty') return <View key={i} style={s.empty} />
   if (line.type === 'section')
-    return <Text key={i} style={{ ...s.sectionLabel, ...cc }}>{line.content.replace(/[\[\]]/g, '')}</Text>
+    return <Text key={i} style={{ ...s.sectionLabel, fontFamily: helveticaBoldFont(customStyle?.italic), ...cc }}>{line.content.replace(/[\[\]]/g, '')}</Text>
   if (line.type === 'chord') {
     const content = transpose !== 0 ? transposeLine(line.content, transpose) : line.content
-    return <Text key={i} style={{ ...s.chordLine, ...cc }}>{content}</Text>
+    return <Text key={i} style={{ ...s.chordLine, fontFamily: courierFont(true, customStyle?.bold, customStyle?.italic), ...cc }}>{content}</Text>
   }
   if (line.type === 'tab')
-    return <Text key={i} style={{ ...s.tabLine, ...cc }}>{line.content}</Text>
-  return <Text key={i} style={{ ...s.lyricLine, ...cc }}>{line.content || ' '}</Text>
+    return <Text key={i} style={{ ...s.tabLine, fontFamily: courierFont(false, customStyle?.bold, customStyle?.italic), ...cc }}>{line.content}</Text>
+  return <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, customStyle?.bold, customStyle?.italic), ...cc }}>{line.content || ' '}</Text>
 }
 
 export default function SongbookPdfDocument({ cifras, config }: Props) {
@@ -83,13 +95,13 @@ export default function SongbookPdfDocument({ cifras, config }: Props) {
               <View style={s.colWrap}>
                 {chunkLines(cifra.lines.map((line, i) => ({ line, i })), columns).map((chunk, colIdx) => (
                   <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < columns - 1 ? 10 : 0 }}>
-                    {chunk.map(({ line, i }) => renderLine(line, i, cifra.transpose, s, cifra.lineColors?.[i]))}
+                    {chunk.map(({ line, i }) => renderLine(line, i, cifra.transpose, s, cifra.lineColors?.[i], cifra.lineStyles?.[i]))}
                   </View>
                 ))}
               </View>
             ) : (
               <View>
-                {cifra.lines.map((line, i) => renderLine(line, i, cifra.transpose, s, cifra.lineColors?.[i]))}
+                {cifra.lines.map((line, i) => renderLine(line, i, cifra.transpose, s, cifra.lineColors?.[i], cifra.lineStyles?.[i]))}
               </View>
             )}
           </Page>

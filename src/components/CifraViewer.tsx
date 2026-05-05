@@ -3,17 +3,20 @@
 import { ParsedLine } from '@/types/cifra'
 import { transposeLine } from '@/lib/chords'
 
+type AnnotateMode = 'color' | 'bold' | 'italic' | null
+
 interface Props {
   lines: ParsedLine[]
   transpose: number
   capo: number
   lineColors?: Record<number, string>
-  colorMode?: boolean
+  lineStyles?: Record<number, { bold?: boolean; italic?: boolean }>
+  annotateMode?: AnnotateMode
   selectedColor?: string
-  onLineColorChange?: (idx: number, color: string | null) => void
+  onLineClick?: (idx: number) => void
 }
 
-export default function CifraViewer({ lines, transpose, capo, lineColors, colorMode, selectedColor, onLineColorChange }: Props) {
+export default function CifraViewer({ lines, transpose, capo, lineColors, lineStyles, annotateMode, selectedColor, onLineClick }: Props) {
   if (lines.length === 0) {
     return (
       <div
@@ -31,16 +34,10 @@ export default function CifraViewer({ lines, transpose, capo, lineColors, colorM
     )
   }
 
-  function handleLineClick(idx: number) {
-    if (!colorMode || !onLineColorChange) return
-    const current = lineColors?.[idx]
-    onLineColorChange(idx, current === selectedColor ? null : (selectedColor ?? '#ef4444'))
-  }
-
   return (
     <div
       className="surface"
-      style={{ padding: '2rem', overflowX: 'auto', cursor: colorMode ? 'crosshair' : undefined }}
+      style={{ padding: '2rem', overflowX: 'auto', cursor: annotateMode ? 'crosshair' : undefined }}
     >
       {capo > 0 && (
         <div
@@ -54,15 +51,23 @@ export default function CifraViewer({ lines, transpose, capo, lineColors, colorM
       <div style={{ fontFamily: "'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Courier New', monospace", fontSize: '0.875rem', lineHeight: 1.6, whiteSpace: 'pre' }}>
         {lines.map((line, i) => {
           const customColor = lineColors?.[i]
-          const clickProps = colorMode && line.type !== 'empty'
-            ? { onClick: () => handleLineClick(i), style: { outline: customColor ? `2px solid ${customColor}22` : undefined, outlineOffset: '1px', borderRadius: 2 } }
-            : {}
+          const customStyle = lineStyles?.[i]
+          const clickable = annotateMode && line.type !== 'empty'
+
+          const inlineStyle: React.CSSProperties = {}
+          if (customColor) inlineStyle.color = customColor
+          if (customStyle?.bold) inlineStyle.fontWeight = 'bold'
+          if (customStyle?.italic) inlineStyle.fontStyle = 'italic'
+
+          const clickProps = clickable
+            ? { onClick: () => onLineClick?.(i), style: { ...inlineStyle, outline: '1px solid var(--border-faint)', outlineOffset: '1px', borderRadius: 2 } }
+            : { style: inlineStyle }
 
           if (line.type === 'empty') return <div key={i} style={{ height: '0.75rem' }} />
 
           if (line.type === 'section')
             return (
-              <div key={i} className="cifra-section" style={{ fontFamily: 'system-ui, sans-serif', color: customColor ?? undefined }} {...clickProps}>
+              <div key={i} className="cifra-section" style={{ fontFamily: 'system-ui, sans-serif', ...clickProps.style }} {...(clickable ? { onClick: clickProps.onClick } : {})}>
                 {line.content.replace(/[\[\]]/g, '')}
               </div>
             )
@@ -70,7 +75,7 @@ export default function CifraViewer({ lines, transpose, capo, lineColors, colorM
           if (line.type === 'chord') {
             const content = transpose !== 0 ? transposeLine(line.content, transpose) : line.content
             return (
-              <div key={i} className="cifra-chord" style={{ color: customColor ?? undefined }} {...clickProps}>
+              <div key={i} className="cifra-chord" {...clickProps}>
                 {content}
               </div>
             )
@@ -78,13 +83,13 @@ export default function CifraViewer({ lines, transpose, capo, lineColors, colorM
 
           if (line.type === 'tab')
             return (
-              <div key={i} className="cifra-tab" style={{ color: customColor ?? undefined }} {...clickProps}>
+              <div key={i} className="cifra-tab" {...clickProps}>
                 {line.content}
               </div>
             )
 
           return (
-            <div key={i} className="cifra-lyric" style={{ color: customColor ?? undefined }} {...clickProps}>
+            <div key={i} className="cifra-lyric" {...clickProps}>
               {line.content || '\u00A0'}
             </div>
           )

@@ -5,6 +5,18 @@ import { transposeLine } from '@/lib/chords'
 export type PdfOrientation = 'portrait' | 'landscape'
 export type PdfColumns = 1 | 2 | 3
 
+/** Map bold/italic flags to the correct built-in PDF font name. */
+function courierFont(baseBold: boolean, bold?: boolean, italic?: boolean) {
+  const b = baseBold || bold
+  if (b && italic) return 'Courier-BoldOblique'
+  if (b) return 'Courier-Bold'
+  if (italic) return 'Courier-Oblique'
+  return 'Courier'
+}
+function helveticaBoldFont(italic?: boolean) {
+  return italic ? 'Helvetica-BoldOblique' : 'Helvetica-Bold'
+}
+
 /** Split an array into `n` roughly-equal vertical chunks (column-first order). */
 function chunkLines<T>(arr: T[], n: number): T[][] {
   const size = Math.ceil(arr.length / n)
@@ -59,21 +71,23 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
                 <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < columns - 1 ? 10 : 0 }}>
                   {chunk.map(({ line, i }) => {
                     const cc = cifra.lineColors?.[i]
+                    const cs = cifra.lineStyles?.[i]
                     if (line.type === 'empty') return <View key={i} style={s.empty} />
-                    if (line.type === 'section') return <Text key={i} style={{ ...s.sectionLabel, ...(cc ? { color: cc } : {}) }}>{line.content.replace(/[\[\]]/g, '')}</Text>
-                    if (line.type === 'chord') return <Text key={i} style={{ ...s.chordLine, ...(cc ? { color: cc } : {}) }}>{cifra.transpose !== 0 ? transposeLine(line.content, cifra.transpose) : line.content}</Text>
-                    if (line.type === 'tab') return <Text key={i} style={{ ...s.tabLine, ...(cc ? { color: cc } : {}) }}>{line.content}</Text>
-                    return <Text key={i} style={{ ...s.lyricLine, ...(cc ? { color: cc } : {}) }}>{line.content || ' '}</Text>
+                    if (line.type === 'section') return <Text key={i} style={{ ...s.sectionLabel, fontFamily: helveticaBoldFont(cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content.replace(/[\[\]]/g, '')}</Text>
+                    if (line.type === 'chord') return <Text key={i} style={{ ...s.chordLine, fontFamily: courierFont(true, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{cifra.transpose !== 0 ? transposeLine(line.content, cifra.transpose) : line.content}</Text>
+                    if (line.type === 'tab') return <Text key={i} style={{ ...s.tabLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content}</Text>
+                    return <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content || ' '}</Text>
                   })}
                 </View>
               ))
             : cifra.lines.map((line: ParsedLine, i: number) => {
             const cc = cifra.lineColors?.[i]
+            const cs = cifra.lineStyles?.[i]
             if (line.type === 'empty') return <View key={i} style={s.empty} />
 
             if (line.type === 'section')
               return (
-                <Text key={i} style={{ ...s.sectionLabel, ...(cc ? { color: cc } : {}) }}>
+                <Text key={i} style={{ ...s.sectionLabel, fontFamily: helveticaBoldFont(cs?.italic), ...(cc ? { color: cc } : {}) }}>
                   {line.content.replace(/[\[\]]/g, '')}
                 </Text>
               )
@@ -84,7 +98,7 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
                   ? transposeLine(line.content, cifra.transpose)
                   : line.content
               return (
-                <Text key={i} style={{ ...s.chordLine, ...(cc ? { color: cc } : {}) }}>
+                <Text key={i} style={{ ...s.chordLine, fontFamily: courierFont(true, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>
                   {content}
                 </Text>
               )
@@ -92,13 +106,13 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
 
             if (line.type === 'tab')
               return (
-                <Text key={i} style={{ ...s.tabLine, ...(cc ? { color: cc } : {}) }}>
+                <Text key={i} style={{ ...s.tabLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>
                   {line.content}
                 </Text>
               )
 
             return (
-              <Text key={i} style={{ ...s.lyricLine, ...(cc ? { color: cc } : {}) }}>
+              <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>
                 {line.content || ' '}
               </Text>
             )

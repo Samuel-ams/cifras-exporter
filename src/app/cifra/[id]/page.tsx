@@ -7,8 +7,11 @@ import { Cifra } from '@/types/cifra'
 import { parseRawText } from '@/lib/parser'
 import { getCifra, saveCifra, deleteCifra } from '@/lib/storage'
 import CifraViewer from '@/components/CifraViewer'
+import AutoScrollWidget from '@/components/AutoScrollWidget'
 
 const PdfDownloadButton = dynamic(() => import('@/components/PdfDownloadButton'), { ssr: false })
+
+type AnnotateMode = 'color' | 'bold' | 'italic' | null
 
 export default function CifraPage() {
   const params = useParams()
@@ -18,8 +21,9 @@ export default function CifraPage() {
   const [cifra, setCifra] = useState<Cifra | null>(null)
   const [editing, setEditing] = useState(false)
   const [rawText, setRawText] = useState('')
-  const [colorMode, setColorMode] = useState(false)
+  const [annotateMode, setAnnotateMode] = useState<AnnotateMode>(null)
   const [selectedColor, setSelectedColor] = useState('#ef4444')
+  const [autoScrollOpen, setAutoScrollOpen] = useState(false)
 
   const COLOR_PALETTE = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6']
 
@@ -43,11 +47,23 @@ export default function CifraPage() {
     setEditing(false)
   }
 
-  function handleColorChange(idx: number, color: string | null) {
-    const newColors = { ...(cifra!.lineColors ?? {}) }
-    if (color === null) delete newColors[idx]
-    else newColors[idx] = color
-    update({ lineColors: newColors })
+  function handleLineClick(idx: number) {
+    if (!annotateMode) return
+    if (annotateMode === 'color') {
+      const newColors = { ...(cifra!.lineColors ?? {}) }
+      if (newColors[idx] === selectedColor) delete newColors[idx]
+      else newColors[idx] = selectedColor
+      update({ lineColors: newColors })
+    } else {
+      const newStyles = Object.fromEntries(
+        Object.entries(cifra!.lineStyles ?? {}).map(([k, v]) => [Number(k), v])
+      ) as Record<number, { bold?: boolean; italic?: boolean }>
+      const current = newStyles[idx] ?? {}
+      const updated = { ...current, [annotateMode]: !current[annotateMode as 'bold' | 'italic'] }
+      if (!updated.bold && !updated.italic) delete newStyles[idx]
+      else newStyles[idx] = updated
+      update({ lineStyles: newStyles })
+    }
   }
 
   function handleDelete() {
@@ -57,6 +73,7 @@ export default function CifraPage() {
   }
 
   return (
+    <>
     <div className="fade-up">
       {/* Top bar */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
@@ -88,32 +105,52 @@ export default function CifraPage() {
         </div>
       </div>
 
-      {/* Color toolbar */}
+      {/* Annotation + AutoScroll toolbar */}
       {!editing && (
         <div
           className="surface"
           style={{ padding: '0.65rem 1.25rem', marginBottom: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}
         >
+          {/* Color mode */}
           <button
-            onClick={() => setColorMode((m) => !m)}
-            className={colorMode ? 'btn-accent' : 'btn-ghost'}
+            onClick={() => setAnnotateMode((m) => m === 'color' ? null : 'color')}
+            className={annotateMode === 'color' ? 'btn-accent' : 'btn-ghost'}
             style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', padding: '0.3rem 0.7rem' }}
-            title={colorMode ? 'Clique em uma linha para colorir' : 'Ativar modo cor'}
+            title="Colorir linhas"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
             </svg>
-            {colorMode ? 'Colorindo' : 'Colorir'}
+            Cor
+          </button>
+          {/* Bold mode */}
+          <button
+            onClick={() => setAnnotateMode((m) => m === 'bold' ? null : 'bold')}
+            className={annotateMode === 'bold' ? 'btn-accent' : 'btn-ghost'}
+            style={{ fontWeight: 800, fontSize: '0.85rem', padding: '0.3rem 0.65rem', fontFamily: 'serif' }}
+            title="Negrito em linhas"
+          >
+            B
+          </button>
+          {/* Italic mode */}
+          <button
+            onClick={() => setAnnotateMode((m) => m === 'italic' ? null : 'italic')}
+            className={annotateMode === 'italic' ? 'btn-accent' : 'btn-ghost'}
+            style={{ fontStyle: 'italic', fontSize: '0.85rem', padding: '0.3rem 0.65rem', fontFamily: 'serif' }}
+            title="Itálico em linhas"
+          >
+            I
           </button>
           <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 0.25rem' }} />
+          {/* Color swatches (only visible in color mode) */}
           {COLOR_PALETTE.map((c) => (
             <button
               key={c}
-              onClick={() => { setSelectedColor(c); setColorMode(true) }}
+              onClick={() => { setSelectedColor(c); setAnnotateMode('color') }}
               title={c}
               style={{
                 width: 22, height: 22, borderRadius: '50%', background: c,
-                border: selectedColor === c && colorMode ? '2.5px solid var(--text)' : '2px solid transparent',
+                border: selectedColor === c && annotateMode === 'color' ? '2.5px solid var(--text)' : '2px solid transparent',
                 cursor: 'pointer', boxShadow: '0 0 0 1px var(--border)', flexShrink: 0,
               }}
             />
@@ -121,26 +158,39 @@ export default function CifraPage() {
           <label title="Cor personalizada" style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}>
             <div style={{
               width: 22, height: 22, borderRadius: '50%',
-              background: COLOR_PALETTE.includes(selectedColor) ? '#fff' : selectedColor,
-              border: !COLOR_PALETTE.includes(selectedColor) && colorMode ? '2.5px solid var(--text)' : '2px dashed var(--border)',
+              background: COLOR_PALETTE.includes(selectedColor) ? 'var(--surface-2)' : selectedColor,
+              border: !COLOR_PALETTE.includes(selectedColor) && annotateMode === 'color' ? '2.5px solid var(--text)' : '2px dashed var(--border)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '0.75rem', color: 'var(--text-muted)', overflow: 'hidden',
             }}>
-              {COLOR_PALETTE.includes(selectedColor) || !colorMode ? '+' : null}
+              {(COLOR_PALETTE.includes(selectedColor) || annotateMode !== 'color') ? '+' : null}
             </div>
             <input
               type="color"
               value={selectedColor}
-              onChange={(e) => { setSelectedColor(e.target.value); setColorMode(true) }}
+              onChange={(e) => { setSelectedColor(e.target.value); setAnnotateMode('color') }}
               style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', top: 0, left: 0, cursor: 'pointer' }}
             />
           </label>
-          {Object.keys(cifra.lineColors ?? {}).length > 0 && (
+          <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 0.25rem' }} />
+          {/* Auto Scroll */}
+          <button
+            onClick={() => setAutoScrollOpen((o) => !o)}
+            className={autoScrollOpen ? 'btn-accent' : 'btn-ghost'}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', padding: '0.3rem 0.7rem' }}
+            title="Auto Scroll"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/>
+            </svg>
+            Auto Scroll
+          </button>
+          {(Object.keys(cifra.lineColors ?? {}).length > 0 || Object.keys(cifra.lineStyles ?? {}).length > 0) && (
             <button
-              onClick={() => update({ lineColors: {} })}
+              onClick={() => update({ lineColors: {}, lineStyles: {} })}
               style={{ marginLeft: 'auto', fontSize: '0.78rem', color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
             >
-              Limpar cores
+              Limpar formatação
             </button>
           )}
         </div>
@@ -223,11 +273,14 @@ export default function CifraPage() {
           transpose={cifra.transpose}
           capo={cifra.capo}
           lineColors={cifra.lineColors}
-          colorMode={colorMode}
+          lineStyles={cifra.lineStyles}
+          annotateMode={annotateMode}
           selectedColor={selectedColor}
-          onLineColorChange={handleColorChange}
+          onLineClick={handleLineClick}
         />
       )}
     </div>
+    {autoScrollOpen && <AutoScrollWidget onClose={() => setAutoScrollOpen(false)} />}
+    </>
   )
 }

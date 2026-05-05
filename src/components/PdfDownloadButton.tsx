@@ -25,7 +25,7 @@ export default function PdfDownloadButton({ cifra }: Props) {
   useEffect(() => {
     update(<PdfDocument cifra={cifra} orientation={orientation} fontSize={fontSize} columns={columns} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cifra.id, cifra.title, cifra.artist, cifra.tone, cifra.capo, cifra.transpose, cifra.rawText, cifra.lineColors, orientation, fontSize, columns])
+  }, [cifra.id, cifra.title, cifra.artist, cifra.tone, cifra.capo, cifra.transpose, cifra.rawText, cifra.lineColors, cifra.lineStyles, orientation, fontSize, columns])
 
   const filename = [cifra.title, cifra.artist]
     .filter(Boolean)

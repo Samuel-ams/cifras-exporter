@@ -17,4 +17,5 @@ export interface Cifra {
   createdAt: string
   updatedAt: string
   lineColors?: Record<number, string>
+  lineStyles?: Record<number, { bold?: boolean; italic?: boolean }>
 }
