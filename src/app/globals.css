@@ -1,26 +1,264 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Design tokens — Light & Dark
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:          #f8f7f4;
+  --surface:     #ffffff;
+  --surface-2:   #f1ede8;
+  --border:      #e4ddd6;
+  --border-faint:#ede9e4;
+  --text:        #1a1714;
+  --text-muted:  #6b6460;
+  --text-faint:  #a09890;
+  --accent:      #5c3d9e;
+  --accent-hover:#4a2f85;
+  --accent-fg:   #ffffff;
+  --chord:       #2563eb;
+  --tab:         #16a34a;
+  --section:     #7c3aed;
+  --danger:      #dc2626;
+  --capo-bg:     #fef3c7;
+  --capo-border: #fcd34d;
+  --capo-text:   #92400e;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:   0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.05);
+  --shadow-lg:   0 12px 40px rgba(0,0,0,.10), 0 4px 12px rgba(0,0,0,.06);
+  --radius:      14px;
+  --radius-sm:   8px;
+  --radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --bg:          #0d0c0b;
+  --surface:     #161412;
+  --surface-2:   #1f1c1a;
+  --border:      #2e2926;
+  --border-faint:#241f1c;
+  --text:        #f0ece7;
+  --text-muted:  #9a9290;
+  --text-faint:  #5e5956;
+  --accent:      #8b6fd4;
+  --accent-hover:#a083e0;
+  --accent-fg:   #ffffff;
+  --chord:       #60a5fa;
+  --tab:         #4ade80;
+  --section:     #a78bfa;
+  --danger:      #f87171;
+  --capo-bg:     #2d2208;
+  --capo-border: #92400e;
+  --capo-text:   #fcd34d;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+  --shadow-md:   0 4px 16px rgba(0,0,0,.4);
+  --shadow-lg:   0 12px 40px rgba(0,0,0,.5);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ============================================================
+   Base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* ============================================================
+   Utility classes (used alongside Tailwind)
+   ============================================================ */
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.surface-2 {
+  background: var(--surface-2);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-sm);
+}
+
+/* Accent button */
+.btn-accent {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.btn-accent:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-1px);
+}
+.btn-accent:active { transform: translateY(0); }
+
+/* Ghost button */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Danger ghost */
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.btn-danger:hover {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
+
+/* Input */
+.field {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 0.55rem 0.875rem;
+  font-size: 0.875rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.field::placeholder { color: var(--text-faint); }
+
+/* Textarea */
+textarea.field {
+  resize: vertical;
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', monospace;
+  line-height: 1.6;
+}
+
+/* Tag pill */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.pill-accent {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+.pill-capo {
+  background: var(--capo-bg);
+  color: var(--capo-text);
+  border: 1px solid var(--capo-border);
+}
+
+/* Counter button (transpose +/-) */
+.counter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  user-select: none;
+}
+.counter-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Cifra viewer */
+.cifra-chord { color: var(--chord); font-weight: 700; line-height: 1.1; }
+.cifra-tab   { color: var(--tab);   line-height: 1.2; }
+.cifra-section {
+  color: var(--section);
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+.cifra-lyric { color: var(--text); line-height: 1.4; }
+
+/* Scrollbar (webkit) */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* Tab bar */
+.tab-active {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.tab-inactive {
+  color: var(--text-muted);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+.tab-inactive:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* Page fade-in */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.3s ease both; }
+
+/* Gradient hero */
+.hero-gradient {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% -10%,
+    color-mix(in srgb, var(--accent) 18%, transparent),
+    transparent 70%
+  );
 }
