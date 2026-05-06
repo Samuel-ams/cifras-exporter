@@ -59,21 +59,8 @@ export default function AutoScrollWidget({ onClose }: Props) {
 
     return (
         <div
-            style={{
-                position: 'fixed',
-                bottom: '2rem',
-                right: '2rem',
-                zIndex: 1000,
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius)',
-                boxShadow: 'var(--shadow-lg)',
-                padding: '1rem 1.25rem',
-                minWidth: 230,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.75rem',
-            }}
+            className="fixed bottom-8 right-4 sm:right-8 z-[1000] bg-surface border border-border flex flex-col gap-3 p-4 min-w-[230px]"
+            style={{ borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-lg)' }}
         >
             {/* Header */}
             {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -93,13 +80,13 @@ export default function AutoScrollWidget({ onClose }: Props) {
       </div> */}
 
             {/* Speed */}
-            <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', width: '80%' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <div className="flex gap-1.5 items-center">
+                <div className="flex flex-col gap-1.5 w-4/5">
+                    <div className="flex justify-between items-center">
+                        <span className="text-[0.78rem] font-semibold text-muted uppercase tracking-[0.06em]">
                             Velocidade
                         </span>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent)', minWidth: 16, textAlign: 'right' }}>
+                        <span className="text-[0.8rem] font-bold text-accent min-w-[16px] text-right">
                             {speed}
                         </span>
                     </div>
@@ -110,9 +97,10 @@ export default function AutoScrollWidget({ onClose }: Props) {
                         step={1}
                         value={speed}
                         onChange={(e) => setSpeed(Number(e.target.value))}
-                        style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }}
+                        className="w-full cursor-pointer"
+                        style={{ accentColor: 'var(--accent)' }}
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-faint)' }}>
+                    <div className="flex justify-between text-[0.7rem] text-faint">
                         <span>Devagar</span>
                         <span>Rápido</span>
                     </div>
@@ -121,8 +109,7 @@ export default function AutoScrollWidget({ onClose }: Props) {
                 {/* Play / Pause */}
                 <button
                     onClick={() => setRunning((r) => !r)}
-                    className={running ? 'btn-danger' : 'btn-accent'}
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                    className={`${running ? 'btn-danger' : 'btn-accent'} flex items-center gap-1`}
                 >
                     {running ? (
                         <>

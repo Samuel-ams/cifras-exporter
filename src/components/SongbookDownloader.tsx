@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useMemo } from 'react'
 import { usePDF } from '@react-pdf/renderer'
 import SongbookPdfDocument, { SongbookPdfConfig } from './SongbookPdfDocument'
 import { Cifra } from '@/types/cifra'
@@ -11,15 +11,13 @@ interface Props {
 }
 
 export default function SongbookDownloader({ cifras, config }: Props) {
-  const doc = <SongbookPdfDocument cifras={cifras} config={config} />
-  const [instance, update] = usePDF({ document: doc })
-
   const ids = cifras.map((c) => c.id + c.transpose + c.capo + JSON.stringify(c.lineColors ?? {}) + JSON.stringify(c.lineStyles ?? {})).join(',')
 
-  useEffect(() => {
-    update(<SongbookPdfDocument cifras={cifras} config={config} />)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ids, config.orientation, config.fontSize, config.columns])
+  // Memoize so usePDF only regenerates when content actually changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const doc = useMemo(() => <SongbookPdfDocument cifras={cifras} config={config} />, [ids, config.orientation, config.fontSize, config.columns])
+
+  const [instance] = usePDF({ document: doc })
 
   const filename = `compilacao-${cifras.length}-musicas.pdf`
 

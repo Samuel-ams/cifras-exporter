@@ -55,6 +55,30 @@
 }
 
 /* ============================================================
+   Tailwind v4 — map CSS vars to theme tokens
+   ============================================================ */
+@theme inline {
+  --color-bg:           var(--bg);
+  --color-surface:      var(--surface);
+  --color-surface2:     var(--surface-2);
+  --color-border:       var(--border);
+  --color-border-faint: var(--border-faint);
+  --color-text:         var(--text);
+  --color-muted:        var(--text-muted);
+  --color-faint:        var(--text-faint);
+  --color-accent:       var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg:    var(--accent-fg);
+  --color-chord:        var(--chord);
+  --color-tab-note:     var(--tab);
+  --color-section:      var(--section);
+  --color-danger:       var(--danger);
+  --color-capo-bg:      var(--capo-bg);
+  --color-capo-border:  var(--capo-border);
+  --color-capo-text:    var(--capo-text);
+}
+
+/* ============================================================
    Base
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; }
@@ -70,32 +94,25 @@ body {
 }
 
 /* ============================================================
-   Utility classes (used alongside Tailwind)
+   Utility classes
    ============================================================ */
 .surface {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  @apply bg-surface border border-border;
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
 }
 
 .surface-2 {
-  background: var(--surface-2);
-  border: 1px solid var(--border-faint);
+  @apply bg-surface2 border border-border-faint;
   border-radius: var(--radius-sm);
 }
 
 /* Accent button */
 .btn-accent {
-  background: var(--accent);
-  color: var(--accent-fg);
+  @apply inline-flex items-center justify-center bg-accent text-accent-fg text-sm font-semibold cursor-pointer transition-all duration-150;
   border: none;
   border-radius: var(--radius-sm);
   padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 .btn-accent:hover {
@@ -107,33 +124,20 @@ body {
 
 /* Ghost button */
 .btn-ghost {
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
+  @apply bg-transparent text-muted border border-border text-sm font-medium cursor-pointer transition-all duration-150;
   border-radius: var(--radius-sm);
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 .btn-ghost:hover {
-  background: var(--surface-2);
-  color: var(--text);
-  border-color: var(--border);
+  @apply bg-surface2 text-text;
 }
 
 /* Danger ghost */
 .btn-danger {
-  background: transparent;
-  color: var(--danger);
+  @apply bg-transparent text-danger text-sm font-medium cursor-pointer transition-all duration-150;
   border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
   border-radius: var(--radius-sm);
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s ease;
 }
 .btn-danger:hover {
   background: color-mix(in srgb, var(--danger) 10%, transparent);
@@ -141,21 +145,15 @@ body {
 
 /* Input */
 .field {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  @apply bg-surface border border-border text-text text-sm w-full outline-none transition-all duration-150;
   border-radius: var(--radius-sm);
-  color: var(--text);
   padding: 0.55rem 0.875rem;
-  font-size: 0.875rem;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .field:focus {
-  border-color: var(--accent);
+  @apply border-accent;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
-.field::placeholder { color: var(--text-faint); }
+.field::placeholder { @apply text-faint; }
 
 /* Textarea */
 textarea.field {
@@ -166,85 +164,59 @@ textarea.field {
 
 /* Tag pill */
 .pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  @apply inline-flex items-center gap-1 text-xs font-semibold;
   padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
   letter-spacing: 0.02em;
 }
 .pill-accent {
   background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
+  @apply text-accent;
 }
 .pill-capo {
-  background: var(--capo-bg);
-  color: var(--capo-text);
-  border: 1px solid var(--capo-border);
+  @apply bg-capo-bg text-capo-text border border-capo-border;
 }
 
 /* Counter button (transpose +/-) */
 .counter-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  @apply flex items-center justify-center w-8 h-8 border border-border bg-surface text-text font-bold cursor-pointer transition-all duration-150 select-none;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
   font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
-  user-select: none;
 }
 .counter-btn:hover {
-  background: var(--surface-2);
-  border-color: var(--accent);
-  color: var(--accent);
+  @apply bg-surface2 border-accent text-accent;
 }
 
 /* Cifra viewer */
-.cifra-chord { color: var(--chord); font-weight: 700; line-height: 1.1; }
-.cifra-tab   { color: var(--tab);   line-height: 1.2; }
+.cifra-chord { @apply text-chord font-bold; line-height: 1.1; }
+.cifra-tab   { color: var(--tab); line-height: 1.2; }
 .cifra-section {
-  color: var(--section);
+  @apply text-section font-extrabold uppercase;
   font-family: system-ui, sans-serif;
   font-size: 0.7rem;
-  font-weight: 800;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
   margin-top: 1.5rem;
   margin-bottom: 0.25rem;
 }
-.cifra-lyric { color: var(--text); line-height: 1.4; }
+.cifra-lyric { @apply text-text; line-height: 1.4; }
 
 /* Scrollbar (webkit) */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+::-webkit-scrollbar-thumb { @apply bg-border; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { @apply bg-faint; }
 
 /* Tab bar */
 .tab-active {
-  background: var(--accent);
-  color: var(--accent-fg);
+  @apply bg-accent text-accent-fg font-semibold;
   border-radius: var(--radius-sm);
-  font-weight: 600;
 }
 .tab-inactive {
-  color: var(--text-muted);
-  background: transparent;
+  @apply text-muted bg-transparent font-medium;
   border-radius: var(--radius-sm);
-  font-weight: 500;
 }
 .tab-inactive:hover {
-  background: var(--surface-2);
-  color: var(--text);
+  @apply bg-surface2 text-text;
 }
 
 /* Page fade-in */
@@ -253,12 +225,3 @@ textarea.field {
   to   { opacity: 1; transform: translateY(0); }
 }
 .fade-up { animation: fadeUp 0.3s ease both; }
-
-/* Gradient hero */
-.hero-gradient {
-  background: radial-gradient(
-    ellipse 80% 50% at 50% -10%,
-    color-mix(in srgb, var(--accent) 18%, transparent),
-    transparent 70%
-  );
-}

@@ -12,41 +12,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body style={{ background: 'var(--bg)', color: 'var(--text)' }}>
+      <body>
         <ThemeProvider>
           {/* Nav */}
-          <header
-            style={{
-              background: 'var(--surface)',
-              borderBottom: '1px solid var(--border)',
-              position: 'sticky',
-              top: 0,
-              zIndex: 50,
-            }}
-          >
-            <div
-              style={{
-                maxWidth: 960,
-                margin: '0 auto',
-                padding: '0 1.5rem',
-                height: '3.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
+          <header className="bg-surface border-b border-border sticky top-0 z-50">
+            <div className="max-w-240 mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
               <Link
                 href="/"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  textDecoration: 'none',
-                  color: 'var(--accent)',
-                  fontWeight: 800,
-                  fontSize: '1.2rem',
-                  letterSpacing: '-0.03em',
-                }}
+                className="flex items-center gap-2 text-accent font-extrabold text-xl tracking-[-0.03em] no-underline"
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 18V5l12-2v13" />
@@ -56,30 +29,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Cifras
               </Link>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+              <div className="flex items-center gap-2.5">
                 <ThemeToggle />
                 <Link
                   href="/compilacao"
-                  style={{
-                    textDecoration: 'none',
-                    color: 'var(--text-muted)',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    padding: '0.4rem 0.75rem',
-                    borderRadius: 8,
-                    transition: 'color 0.15s',
-                  }}
+                  className="hidden sm:inline-block text-muted text-sm font-medium px-3 py-1.5 rounded-lg no-underline transition-colors hover:text-text"
                 >
                   Compilação
                 </Link>
-                <Link href="/nova" className="btn-accent" style={{ textDecoration: 'none' }}>
+                <Link href="/nova" className="btn-accent no-underline">
                   + Nova Cifra
                 </Link>
               </div>
             </div>
           </header>
 
-          <main style={{ maxWidth: 960, margin: '0 auto', padding: '2.5rem 1.5rem' }}>
+          <main className="max-w-240 mx-auto px-4 sm:px-6 py-8 sm:py-10">
             {children}
           </main>
         </ThemeProvider>

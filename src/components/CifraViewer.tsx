@@ -19,16 +19,7 @@ interface Props {
 export default function CifraViewer({ lines, transpose, capo, lineColors, lineStyles, annotateMode, selectedColor, onLineClick }: Props) {
   if (lines.length === 0) {
     return (
-      <div
-        style={{
-          border: '2px dashed var(--border)',
-          borderRadius: 'var(--radius)',
-          padding: '3rem 2rem',
-          textAlign: 'center',
-          color: 'var(--text-faint)',
-          fontSize: '0.9rem',
-        }}
-      >
+      <div className="border-2 border-dashed border-border rounded-(--radius) py-12 px-8 text-center text-faint text-[0.9rem]">
         A cifra aparecerá aqui conforme você digitar.
       </div>
     )
@@ -36,19 +27,18 @@ export default function CifraViewer({ lines, transpose, capo, lineColors, lineSt
 
   return (
     <div
-      className="surface"
-      style={{ padding: '2rem', overflowX: 'auto', cursor: annotateMode ? 'crosshair' : undefined }}
+      className={`surface p-8 overflow-x-auto${annotateMode ? ' cursor-crosshair' : ''}`}
     >
       {capo > 0 && (
         <div
-          className="pill pill-capo"
-          style={{ marginBottom: '1.25rem', display: 'inline-flex', padding: '0.3rem 0.8rem', fontWeight: 700, letterSpacing: '0.08em' }}
+          className="pill pill-capo font-bold mb-5"
+          style={{ padding: '0.3rem 0.8rem', letterSpacing: '0.08em' }}
         >
           CAPO {capo}ª CASA
         </div>
       )}
 
-      <div style={{ fontFamily: "'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Courier New', monospace", fontSize: '0.875rem', lineHeight: 1.6, whiteSpace: 'pre' }}>
+      <div className="font-mono text-sm whitespace-pre" style={{ fontFamily: "'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Courier New', monospace", lineHeight: 1.6 }}>
         {lines.map((line, i) => {
           const customColor = lineColors?.[i]
           const customStyle = lineStyles?.[i]

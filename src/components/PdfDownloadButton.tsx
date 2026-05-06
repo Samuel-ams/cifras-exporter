@@ -34,18 +34,13 @@ export default function PdfDownloadButton({ cifra }: Props) {
     .concat('.pdf')
 
   return (
-    <div style={{ position: 'relative', display: 'inline-flex', gap: '0' }}>
+    <div className="relative inline-flex">
       {/* Settings toggle */}
       <button
         onClick={() => setOpen((o) => !o)}
         className="btn-ghost"
         aria-label="Opções do PDF"
-        style={{
-          borderTopRightRadius: 0,
-          borderBottomRightRadius: 0,
-          borderRight: 'none',
-          padding: '0.5rem 0.625rem',
-        }}
+        style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRight: 'none', padding: '0.5rem 0.625rem' }}
         title="Opções do PDF"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -59,8 +54,8 @@ export default function PdfDownloadButton({ cifra }: Props) {
       {instance.loading ? (
         <button
           disabled
-          className="btn-ghost"
-          style={{ opacity: 0.5, cursor: 'wait', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          className="btn-ghost opacity-50 cursor-wait"
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
         >
           Gerando...
         </button>
@@ -68,8 +63,8 @@ export default function PdfDownloadButton({ cifra }: Props) {
         <a
           href={instance.url}
           download={filename}
-          className="btn-ghost"
-          style={{ textDecoration: 'none', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          className="btn-ghost no-underline"
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
         >
           ↓ PDF
         </a>
@@ -81,65 +76,33 @@ export default function PdfDownloadButton({ cifra }: Props) {
           {/* Backdrop */}
           <div
             onClick={() => setOpen(false)}
-            style={{ position: 'fixed', inset: 0, zIndex: 40 }}
+            className="fixed inset-0 z-40"
           />
           <div
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 8px)',
-              right: 0,
-              zIndex: 50,
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)',
-              boxShadow: 'var(--shadow-lg)',
-              padding: '1.25rem',
-              minWidth: 240,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-            }}
+            className="absolute top-[calc(100%+8px)] right-0 z-50 bg-surface border border-border flex flex-col gap-4 p-5 min-w-60"
+            style={{ borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-lg)' }}
           >
-            <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
+            <p className="text-[0.78rem] font-bold text-muted uppercase tracking-[0.08em] m-0">
               Opções do PDF
             </p>
 
             {/* Orientation */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>
-                Orientação
-              </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <label className="block text-[0.8rem] font-semibold text-text mb-2">Orientação</label>
+              <div className="flex gap-2">
                 {(['portrait', 'landscape'] as const).map((o) => (
                   <button
                     key={o}
                     onClick={() => setOrientation(o)}
+                    className="flex-1 p-2 rounded-lg flex flex-col items-center gap-1.5 cursor-pointer text-[0.8rem] font-semibold transition-all duration-150"
                     style={{
-                      flex: 1,
-                      padding: '0.5rem',
-                      borderRadius: 8,
                       border: '1.5px solid',
                       borderColor: orientation === o ? 'var(--accent)' : 'var(--border)',
                       background: orientation === o ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'var(--surface-2)',
                       color: orientation === o ? 'var(--accent)' : 'var(--text-muted)',
-                      cursor: 'pointer',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      transition: 'all 0.15s ease',
                     }}
                   >
-                    {/* Mini page icon */}
-                    <span style={{
-                      display: 'block',
-                      border: '1.5px solid currentColor',
-                      borderRadius: 2,
-                      width: o === 'portrait' ? 14 : 20,
-                      height: o === 'portrait' ? 20 : 14,
-                    }} />
+                    <span style={{ display: 'block', border: '1.5px solid currentColor', borderRadius: 2, width: o === 'portrait' ? 14 : 20, height: o === 'portrait' ? 20 : 14 }} />
                     {o === 'portrait' ? 'Retrato' : 'Paisagem'}
                   </button>
                 ))}
@@ -148,27 +111,21 @@ export default function PdfDownloadButton({ cifra }: Props) {
 
             {/* Font size */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>
-                Tamanho da fonte — <span style={{ color: 'var(--accent)' }}>{fontSize}pt</span>
+              <label className="block text-[0.8rem] font-semibold text-text mb-2">
+                Tamanho da fonte — <span className="text-accent">{fontSize}pt</span>
               </label>
-              <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+              <div className="flex gap-1.5 flex-wrap">
                 {FONT_SIZES.map((s) => (
                   <button
                     key={s}
                     onClick={() => setFontSize(s)}
+                    className="px-2.5 py-1 rounded-md text-[0.8rem] transition-all duration-150 min-w-8.5 text-center"
                     style={{
-                      padding: '0.3rem 0.6rem',
-                      borderRadius: 6,
                       border: '1.5px solid',
                       borderColor: fontSize === s ? 'var(--accent)' : 'var(--border)',
                       background: fontSize === s ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'var(--surface-2)',
                       color: fontSize === s ? 'var(--accent)' : 'var(--text-muted)',
-                      cursor: 'pointer',
-                      fontSize: '0.8rem',
                       fontWeight: fontSize === s ? 700 : 500,
-                      transition: 'all 0.15s ease',
-                      minWidth: 34,
-                      textAlign: 'center',
                     }}
                   >
                     {s}
@@ -179,34 +136,24 @@ export default function PdfDownloadButton({ cifra }: Props) {
 
             {/* Columns */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.5rem' }}>
-                Colunas — <span style={{ color: 'var(--accent)' }}>{columns}</span>
+              <label className="block text-[0.8rem] font-semibold text-text mb-2">
+                Colunas — <span className="text-accent">{columns}</span>
               </label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className="flex gap-2">
                 {COLUMNS.map((c) => (
                   <button
                     key={c}
                     onClick={() => setColumns(c)}
+                    className="flex-1 py-2 px-1 rounded-lg flex flex-col items-center gap-1.5 cursor-pointer text-[0.8rem] font-semibold transition-all duration-150"
                     style={{
-                      flex: 1,
-                      padding: '0.5rem 0.25rem',
-                      borderRadius: 8,
                       border: '1.5px solid',
                       borderColor: columns === c ? 'var(--accent)' : 'var(--border)',
                       background: columns === c ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'var(--surface-2)',
                       color: columns === c ? 'var(--accent)' : 'var(--text-muted)',
-                      cursor: 'pointer',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      transition: 'all 0.15s ease',
                     }}
                   >
                     {/* Mini column icon */}
-                    <span style={{ display: 'flex', gap: 2 }}>
+                    <span className="flex gap-0.5">
                       {Array.from({ length: c }).map((_, i) => (
                         <span key={i} style={{ display: 'block', width: c === 1 ? 14 : c === 2 ? 8 : 5, height: 18, border: '1.5px solid currentColor', borderRadius: 1 }} />
                       ))}
@@ -219,8 +166,7 @@ export default function PdfDownloadButton({ cifra }: Props) {
 
             <button
               onClick={() => setOpen(false)}
-              className="btn-accent"
-              style={{ marginTop: '0.25rem' }}
+              className="btn-accent mt-1"
             >
               Aplicar
             </button>
