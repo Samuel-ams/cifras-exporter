@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cifras
+
+A client-side chord sheet manager for guitarists. Paste chords from sites like CifrasClub, organize them into playlists, transpose, annotate, and export to PDF — no account or backend required. Everything lives in your browser.
+
+## Features
+
+- **Smart paste** — detects chord lines, section headers, tab notation, and capo automatically from pasted text
+- **Transpose** — shift all chords up/down by semitones, preserving accidentals and bass notes
+- **Capo** — auto-extracted from text ("Capotraste na 2ª casa") or set manually
+- **Annotations** — color-code, bold, or italicize individual lines
+- **Auto-scroll** — hands-free scrolling at configurable speed for live use
+- **PDF export** — individual chord sheets or a full songbook with configurable layout
+- **Playlists** — group songs and navigate between them in sequence
+- **Share links** — generate read-only URLs to share chords with others
+- **Dark/light theme**
+- **Fully offline** — all data stored in `localStorage`, no server needed
+
+## Tech Stack
+
+| | |
+|---|---|
+| Framework | Next.js (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| PDF | @react-pdf/renderer |
+| IDs | uuid |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/               # Pages (Next.js App Router)
+    page.tsx         # Home — chord library
+    nova/            # Create new chord
+    cifra/[id]/      # View / edit chord
+    cifra/share/     # Read-only shared view
+    compilacao/      # Songbook PDF builder
+    playlist/        # Playlist list
+    playlist/[id]/   # Playlist detail
+  controllers/       # Business logic hooks (one per page)
+  models/
+    cifra.ts         # Types: Cifra, ParsedLine
+    chords.ts        # Chord detection, transposition
+    parser.ts        # Raw text → ParsedLine[] (capo extraction, section splitting)
+    storage.ts       # localStorage CRUD
+    playlist.ts      # Playlist types
+    share.ts         # Share URL encoding/decoding
+  views/             # Shared UI components
+```
 
-## Learn More
+## Chord Parsing
 
-To learn more about Next.js, take a look at the following resources:
+Lines are classified automatically:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Type | Detection |
+|------|-----------|
+| `chord` | Line contains only chord tokens (`Am`, `G#m7`, `C/E`, …) |
+| `tab` | Line starts with a string name followed by `\|` (`E\|`, `A\|`, …) |
+| `section` | Line matches `[…]` (`[Intro]`, `[Verso 1]`, …) |
+| `lyric` | Everything else |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If a section and chords appear on the same line (`[Refrão] Am Em`), the parser splits them into two lines. Chord lines not followed by a lyric have leading whitespace trimmed (copy-paste artifact from websites). Chord lines above lyrics preserve spacing for syllable alignment.
 
-## Deploy on Vercel
+## Storage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+All data is stored in `localStorage`:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `cifras_v1` — array of all chord sheets
+- `playlists_v1` — array of playlists
+
+Deleting a chord automatically removes it from all playlists.
