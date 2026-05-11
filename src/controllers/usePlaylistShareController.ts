@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Cifra } from '@/models/cifra'
 import { Playlist } from '@/models/playlist'
 import { decodePlaylistShare } from '@/models/share'
@@ -9,7 +9,6 @@ import { getCifra, saveCifra, getPlaylist, savePlaylist } from '@/models/storage
 import { v4 as uuidv4 } from 'uuid'
 
 export function usePlaylistShareController() {
-  const searchParams = useSearchParams()
   const router = useRouter()
   const [playlist, setPlaylist] = useState<Playlist | null>(null)
   const [cifras, setCifras] = useState<Cifra[]>([])
@@ -18,14 +17,15 @@ export function usePlaylistShareController() {
   const [alreadySaved, setAlreadySaved] = useState(false)
 
   useEffect(() => {
-    const data = searchParams.get('data')
+    const hash = window.location.hash.slice(1)
+    const data = new URLSearchParams(hash).get('data')
     if (!data) { setInvalid(true); return }
     const decoded = decodePlaylistShare(data)
     if (!decoded) { setInvalid(true); return }
     setPlaylist(decoded.playlist)
     setCifras(decoded.cifras)
     setAlreadySaved(!!getPlaylist(decoded.playlist.id))
-  }, [searchParams])
+  }, [])
 
   function handleSave() {
     if (!playlist) return
