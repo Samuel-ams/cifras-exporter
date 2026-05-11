@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Link from 'next/link'
-import { ThemeProvider } from '@/components/ThemeProvider'
-import ThemeToggle from '@/components/ThemeToggle'
+import { ThemeProvider } from '@/views/ThemeProvider'
+import ThemeToggle from '@/views/ThemeToggle'
 
 export const metadata: Metadata = {
   title: 'Cifras',
@@ -31,6 +31,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
               <div className="flex items-center gap-2.5">
                 <ThemeToggle />
+                <Link
+                  href="/playlist"
+                  className="hidden sm:inline-block text-muted text-sm font-medium px-3 py-1.5 rounded-lg no-underline transition-colors hover:text-text"
+                >
+                  Playlists
+                </Link>
                 <Link
                   href="/compilacao"
                   className="hidden sm:inline-block text-muted text-sm font-medium px-3 py-1.5 rounded-lg no-underline transition-colors hover:text-text"

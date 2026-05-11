@@ -1,6 +1,6 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer'
-import { Cifra, ParsedLine } from '@/types/cifra'
-import { transposeLine } from '@/lib/chords'
+import { Cifra, ParsedLine } from '@/models/cifra'
+import { transposeLine } from '@/models/chords'
 
 export type PdfOrientation = 'portrait' | 'landscape'
 export type PdfColumns = 1 | 2 | 3

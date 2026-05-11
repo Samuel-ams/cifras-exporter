@@ -16,7 +16,7 @@ function transposeNote(note: string, semitones: number, useFlats: boolean): stri
 export function transposeChord(chord: string, semitones: number): string {
   if (semitones === 0) return chord
   const match = chord.match(
-    /^([A-G][#b]?)((?:maj7?|min7?|m7?|dim7?|aug|sus[24]?|add\d+|\d+)*)(\/[A-G][#b]?)?$/,
+    /^([A-G][#b]?)((?:maj7?|min7?|m7?|dim7?|aug|\+|sus[24]?|add\d+|\d+[M+]?)*)(\/[A-G][#b]?)?$/,
   )
   if (!match) return chord
   const [, root, suffix, bass] = match
@@ -28,7 +28,7 @@ export function transposeChord(chord: string, semitones: number): string {
 
 // Matches individual chord tokens (e.g. "Em", "G#m7", "C/E")
 const CHORD_TOKEN_RE =
-  /[A-G][#b]?(?:maj7?|min7?|m7?|dim7?|aug|sus[24]?|add\d+|\d+)*(?:\/[A-G][#b]?)?/g
+  /[A-G][#b]?(?:maj7?|min7?|m7?|dim7?|aug|\+|sus[24]?|add\d+|\d+[M+]?)*(?:\/[A-G][#b]?)?/g
 
 export function transposeLine(line: string, semitones: number): string {
   if (semitones === 0) return line

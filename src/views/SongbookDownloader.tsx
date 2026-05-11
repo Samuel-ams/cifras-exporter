@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { usePDF } from '@react-pdf/renderer'
 import SongbookPdfDocument, { SongbookPdfConfig } from './SongbookPdfDocument'
-import { Cifra } from '@/types/cifra'
+import { Cifra } from '@/models/cifra'
 
 interface Props {
   cifras: Cifra[]

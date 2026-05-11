@@ -1,9 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Cifra } from '@/types/cifra'
-import { getAllCifras, deleteCifra } from '@/lib/storage'
+import { useHomeController } from '@/controllers/useHomeController'
 
 function timeAgo(iso: string) {
     const diff = Date.now() - new Date(iso).getTime()
@@ -16,23 +14,7 @@ function timeAgo(iso: string) {
 }
 
 export default function HomePage() {
-    const [cifras, setCifras] = useState<Cifra[]>([])
-    const [search, setSearch] = useState('')
-
-    useEffect(() => { setCifras(getAllCifras()) }, [])
-
-    const filtered = cifras.filter(
-        (c) =>
-            c.title.toLowerCase().includes(search.toLowerCase()) ||
-            c.artist.toLowerCase().includes(search.toLowerCase()),
-    )
-
-    function handleDelete(e: React.MouseEvent, id: string) {
-        e.preventDefault()
-        if (!confirm('Excluir esta cifra?')) return
-        deleteCifra(id)
-        setCifras(getAllCifras())
-    }
+    const { cifras, filtered, search, setSearch, handleDelete } = useHomeController()
 
     if (cifras.length === 0) {
         return (

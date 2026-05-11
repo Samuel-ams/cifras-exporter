@@ -59,7 +59,7 @@ export default function AutoScrollWidget({ onClose }: Props) {
 
     return (
         <div
-            className="fixed bottom-8 right-4 sm:right-8 z-[1000] bg-surface border border-border flex flex-col gap-3 p-4 min-w-[230px]"
+            className="fixed bottom-8 right-4 sm:right-8 z-1000 bg-surface border border-border flex flex-col gap-3 p-4 min-w-57.5"
             style={{ borderRadius: 'var(--radius)', boxShadow: 'var(--shadow-lg)' }}
         >
             {/* Header */}
@@ -86,7 +86,7 @@ export default function AutoScrollWidget({ onClose }: Props) {
                         <span className="text-[0.78rem] font-semibold text-muted uppercase tracking-[0.06em]">
                             Velocidade
                         </span>
-                        <span className="text-[0.8rem] font-bold text-accent min-w-[16px] text-right">
+                        <span className="text-[0.8rem] font-bold text-accent min-w-4 text-right">
                             {speed}
                         </span>
                     </div>

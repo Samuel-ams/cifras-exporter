@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { usePDF } from '@react-pdf/renderer'
 import PdfDocument, { PdfOrientation, PdfColumns } from './PdfDocument'
-import { Cifra } from '@/types/cifra'
+import { Cifra } from '@/models/cifra'
 
 const FONT_SIZES = [8, 9, 10, 11, 12, 14] as const
 type FontSize = (typeof FONT_SIZES)[number]

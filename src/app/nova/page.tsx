@@ -1,12 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { v4 as uuidv4 } from 'uuid'
-import { Cifra } from '@/types/cifra'
-import { parseRawText } from '@/lib/parser'
-import { saveCifra } from '@/lib/storage'
-import CifraViewer from '@/components/CifraViewer'
+import { useNovaCifraController } from '@/controllers/useNovaCifraController'
+import CifraViewer from '@/views/CifraViewer'
 
 const PLACEHOLDER = `[Intro]
 Em  G  C  D
@@ -22,38 +17,18 @@ Em       G
 Refrão aqui`
 
 export default function NovaCifraPage() {
-  const router = useRouter()
-  const [title, setTitle] = useState('')
-  const [artist, setArtist] = useState('')
-  const [tone, setTone] = useState('')
-  const [capo, setCapo] = useState(0)
-  const [transpose, setTranspose] = useState(0)
-  const [rawText, setRawText] = useState('')
-  const [tab, setTab] = useState<'editor' | 'preview'>('editor')
-
-  const lines = parseRawText(rawText)
-
-  function handleSave() {
-    if (!title.trim()) {
-      alert('Digite o título da música.')
-      return
-    }
-    const now = new Date().toISOString()
-    const cifra: Cifra = {
-      id: uuidv4(),
-      title: title.trim(),
-      artist: artist.trim(),
-      tone: tone.trim(),
-      capo,
-      transpose,
-      lines,
-      rawText,
-      createdAt: now,
-      updatedAt: now,
-    }
-    saveCifra(cifra)
-    router.push(`/cifra/${cifra.id}`)
-  }
+  const {
+    title, setTitle,
+    artist, setArtist,
+    tone, setTone,
+    capo, setCapo,
+    transpose, setTranspose,
+    rawText, handleRawTextChange,
+    tab, setTab,
+    lines,
+    handleSave,
+    router,
+  } = useNovaCifraController()
 
   return (
     <div className="fade-up">
@@ -144,7 +119,7 @@ export default function NovaCifraPage() {
           </p>
           <textarea
             value={rawText}
-            onChange={(e) => setRawText(e.target.value)}
+            onChange={(e) => handleRawTextChange(e.target.value)}
             rows={24}
             spellCheck={false}
             placeholder={PLACEHOLDER}

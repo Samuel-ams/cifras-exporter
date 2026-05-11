@@ -1,80 +1,52 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { Cifra } from '@/types/cifra'
-import { parseRawText } from '@/lib/parser'
-import { getCifra, saveCifra, deleteCifra } from '@/lib/storage'
-import CifraViewer from '@/components/CifraViewer'
-import AutoScrollWidget from '@/components/AutoScrollWidget'
+import { useCifraController, AnnotateMode, COLOR_PALETTE } from '@/controllers/useCifraController'
+import CifraViewer from '@/views/CifraViewer'
+import AutoScrollWidget from '@/views/AutoScrollWidget'
+import PlaylistNavBar from '@/views/PlaylistNavBar'
 
-const PdfDownloadButton = dynamic(() => import('@/components/PdfDownloadButton'), { ssr: false })
-
-type AnnotateMode = 'color' | 'bold' | 'italic' | null
+const PdfDownloadButton = dynamic(() => import('@/views/PdfDownloadButton'), { ssr: false })
 
 export default function CifraPage() {
-  const params = useParams()
-  const router = useRouter()
-  const id = params.id as string
-
-  const [cifra, setCifra] = useState<Cifra | null>(null)
-  const [editing, setEditing] = useState(false)
-  const [rawText, setRawText] = useState('')
-  const [annotateMode, setAnnotateMode] = useState<AnnotateMode>(null)
-  const [selectedColor, setSelectedColor] = useState('#ef4444')
-  const [autoScrollOpen, setAutoScrollOpen] = useState(false)
-
-  const COLOR_PALETTE = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#14b8a6']
-
-  useEffect(() => {
-    const c = getCifra(id)
-    if (!c) { router.replace('/'); return }
-    setCifra(c)
-    setRawText(c.rawText)
-  }, [id, router])
+  const {
+    cifra,
+    editing, setEditing,
+    rawText, setRawText, handleRawTextChange,
+    annotateMode, setAnnotateMode,
+    selectedColor, setSelectedColor,
+    autoScrollOpen, setAutoScrollOpen,
+    shareCopied,
+    update,
+    handleSaveEdit,
+    handleLineClick,
+    handleDelete,
+    handleShare,
+    playlist,
+    playlistIndex,
+    prevCifraId,
+    nextCifraId,
+    goToPrev,
+    goToNext,
+    router,
+  } = useCifraController()
 
   if (!cifra) return null
-
-  function update(patch: Partial<Cifra>) {
-    const updated: Cifra = { ...cifra!, ...patch, updatedAt: new Date().toISOString() }
-    setCifra(updated)
-    saveCifra(updated)
-  }
-
-  function handleSaveEdit() {
-    update({ rawText, lines: parseRawText(rawText) })
-    setEditing(false)
-  }
-
-  function handleLineClick(idx: number) {
-    if (!annotateMode) return
-    if (annotateMode === 'color') {
-      const newColors = { ...(cifra!.lineColors ?? {}) }
-      if (newColors[idx] === selectedColor) delete newColors[idx]
-      else newColors[idx] = selectedColor
-      update({ lineColors: newColors })
-    } else {
-      const newStyles = Object.fromEntries(
-        Object.entries(cifra!.lineStyles ?? {}).map(([k, v]) => [Number(k), v])
-      ) as Record<number, { bold?: boolean; italic?: boolean }>
-      const current = newStyles[idx] ?? {}
-      const updated = { ...current, [annotateMode]: !current[annotateMode as 'bold' | 'italic'] }
-      if (!updated.bold && !updated.italic) delete newStyles[idx]
-      else newStyles[idx] = updated
-      update({ lineStyles: newStyles })
-    }
-  }
-
-  function handleDelete() {
-    if (!confirm('Excluir esta cifra?')) return
-    deleteCifra(cifra!.id)
-    router.push('/')
-  }
 
   return (
     <>
     <div className="fade-up">
+      {/* Playlist navigation bar */}
+      {playlist && (
+        <PlaylistNavBar
+          playlist={playlist}
+          currentIndex={playlistIndex}
+          prevCifraId={prevCifraId}
+          nextCifraId={nextCifraId}
+          onPrev={goToPrev}
+          onNext={goToNext}
+        />
+      )}
       {/* Top bar */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
         <div>
@@ -101,6 +73,19 @@ export default function CifraPage() {
             {editing ? 'Cancelar' : 'Editar'}
           </button>
           <PdfDownloadButton cifra={cifra} />
+          <button onClick={handleShare} className="btn-ghost flex items-center gap-1.5">
+            {shareCopied ? (
+              <>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Copiado!
+              </>
+            ) : (
+              <>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Compartilhar
+              </>
+            )}
+          </button>
           <button onClick={handleDelete} className="btn-danger">Excluir</button>
         </div>
       </div>
@@ -242,7 +227,7 @@ export default function CifraPage() {
           </p>
           <textarea
             value={rawText}
-            onChange={(e) => setRawText(e.target.value)}
+            onChange={(e) => handleRawTextChange(e.target.value)}
             rows={30}
             spellCheck={false}
             className="field block"

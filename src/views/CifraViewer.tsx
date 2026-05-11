@@ -1,7 +1,7 @@
 'use client'
 
-import { ParsedLine } from '@/types/cifra'
-import { transposeLine } from '@/lib/chords'
+import { ParsedLine } from '@/models/cifra'
+import { transposeLine } from '@/models/chords'
 
 type AnnotateMode = 'color' | 'bold' | 'italic' | null
 
