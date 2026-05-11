@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { Playlist } from '@/models/playlist'
 import { Cifra } from '@/models/cifra'
 import { getPlaylist, savePlaylist, deletePlaylist, getAllCifras, getCifra } from '@/models/storage'
+import { buildPlaylistShareUrl } from '@/models/share'
 
 export function usePlaylistDetailController() {
   const params = useParams()
@@ -16,6 +17,7 @@ export function usePlaylistDetailController() {
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState('')
   const [search, setSearch] = useState('')
+  const [shareCopied, setShareCopied] = useState(false)
 
   useEffect(() => {
     const p = getPlaylist(id)
@@ -71,6 +73,15 @@ export function usePlaylistDetailController() {
     .map((cid) => getCifra(cid))
     .filter(Boolean) as Cifra[]
 
+  function handleShare() {
+    if (!playlist) return
+    const url = buildPlaylistShareUrl(playlist, playlistCifras)
+    navigator.clipboard.writeText(url).then(() => {
+      setShareCopied(true)
+      setTimeout(() => setShareCopied(false), 2500)
+    })
+  }
+
   const availableCifras = allCifras.filter((c) => {
     const q = search.toLowerCase()
     const matchesSearch = !q || c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q)
@@ -91,6 +102,8 @@ export function usePlaylistDetailController() {
     moveUp,
     moveDown,
     handleDelete,
+    handleShare,
+    shareCopied,
     router,
   }
 }
