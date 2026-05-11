@@ -1,9 +1,10 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useShareController } from '@/controllers/useShareController'
 import CifraViewer from '@/views/CifraViewer'
 
-export default function SharePage() {
+function ShareContent() {
   const { cifra, invalid, saved, alreadySaved, handleSave, router } = useShareController()
 
   if (invalid) {
@@ -94,5 +95,13 @@ export default function SharePage() {
         onLineClick={() => {}}
       />
     </div>
+  )
+}
+
+export default function SharePage() {
+  return (
+    <Suspense>
+      <ShareContent />
+    </Suspense>
   )
 }
