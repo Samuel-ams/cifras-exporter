@@ -33,7 +33,7 @@ function ShareContent() {
             </svg>
             Minhas Cifras
           </button>
-          <h1 className="text-[2rem] font-extrabold tracking-[-0.04em] mb-0.5 leading-tight">
+          <h1 className="text-[1.5rem] sm:text-[2rem] font-extrabold tracking-[-0.04em] mb-0.5 leading-tight">
             {cifra.title}
           </h1>
           {cifra.artist && (
@@ -63,7 +63,7 @@ function ShareContent() {
       </div>
 
       {/* Controls bar (read-only) */}
-      <div className="surface px-6 py-4 mb-6 flex flex-wrap gap-6 items-center">
+      <div className="surface px-4 sm:px-6 py-4 mb-6 flex flex-wrap gap-4 sm:gap-6 items-center">
         {cifra.tone && (
           <div className="flex items-center gap-1.5">
             <span className="text-[0.78rem] text-faint">Tom:</span>

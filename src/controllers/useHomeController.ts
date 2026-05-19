@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Cifra } from '@/models/cifra'
 import { getAllCifras, deleteCifra } from '@/models/storage'
+import { useConfirm } from '@/views/ConfirmModal'
 
 export function useHomeController() {
+  const confirm = useConfirm()
   const [cifras, setCifras] = useState<Cifra[]>([])
   const [search, setSearch] = useState('')
 
@@ -16,9 +18,11 @@ export function useHomeController() {
       c.artist.toLowerCase().includes(search.toLowerCase()),
   )
 
-  function handleDelete(e: React.MouseEvent, id: string) {
+  async function handleDelete(e: React.MouseEvent, id: string) {
     e.preventDefault()
-    if (!confirm('Excluir esta cifra?')) return
+    const title = cifras.find((c) => c.id === id)?.title ?? 'esta cifra'
+    const ok = await confirm(`Deseja excluir a cifra "${title}"?`)
+    if (!ok) return
     deleteCifra(id)
     setCifras(getAllCifras())
   }

@@ -45,7 +45,7 @@ export default function NovaCifraPage() {
         Nova Cifra
       </h1>
 
-      <div className="surface p-6 mb-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="surface p-4 sm:p-6 mb-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-[0.78rem] font-semibold text-muted mb-1.5 uppercase tracking-[0.06em]">
             Título *
@@ -67,7 +67,7 @@ export default function NovaCifraPage() {
       </div>
 
       {/* Controls */}
-      <div className="surface px-6 py-4 mb-5 flex flex-wrap gap-6 items-center">
+      <div className="surface px-4 sm:px-6 py-4 mb-5 flex flex-wrap gap-4 sm:gap-6 items-center">
         {/* Transpose */}
         <div className="flex items-center gap-2.5">
           <span className="text-[0.82rem] font-semibold text-muted uppercase tracking-[0.06em]">Transpose</span>

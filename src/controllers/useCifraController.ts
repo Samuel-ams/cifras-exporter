@@ -6,6 +6,7 @@ import { Cifra } from '@/models/cifra'
 import { parseRawText, extractCapoFromText } from '@/models/parser'
 import { getCifra, saveCifra, deleteCifra, getPlaylist } from '@/models/storage'
 import { buildShareUrl } from '@/models/share'
+import { useConfirm } from '@/views/ConfirmModal'
 
 export type AnnotateMode = 'color' | 'bold' | 'italic' | null
 
@@ -18,6 +19,7 @@ export function useCifraController() {
   const id = params.id as string
   const playlistId = searchParams.get('playlist')
 
+  const confirm = useConfirm()
   const [cifra, setCifra] = useState<Cifra | null>(null)
   const [editing, setEditing] = useState(false)
   const [rawText, setRawText] = useState('')
@@ -69,8 +71,9 @@ export function useCifraController() {
     }
   }
 
-  function handleDelete() {
-    if (!confirm('Excluir esta cifra?')) return
+  async function handleDelete() {
+    const ok = await confirm(`Deseja excluir a cifra "${cifra!.title}"?`)
+    if (!ok) return
     deleteCifra(cifra!.id)
     router.push('/')
   }

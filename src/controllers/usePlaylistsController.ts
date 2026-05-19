@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
 import { Playlist } from '@/models/playlist'
 import { getAllPlaylists, savePlaylist, deletePlaylist } from '@/models/storage'
+import { useConfirm } from '@/views/ConfirmModal'
 
 export function usePlaylistsController() {
+  const confirm = useConfirm()
   const router = useRouter()
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [creating, setCreating] = useState(false)
@@ -26,8 +28,10 @@ export function usePlaylistsController() {
     router.push(`/playlist/${playlist.id}`)
   }
 
-  function handleDelete(id: string) {
-    if (!confirm('Excluir esta playlist?')) return
+  async function handleDelete(id: string) {
+    const name = playlists.find((p) => p.id === id)?.name ?? 'esta playlist'
+    const ok = await confirm(`Deseja excluir a playlist "${name}"?`)
+    if (!ok) return
     deletePlaylist(id)
     setPlaylists(getAllPlaylists())
   }

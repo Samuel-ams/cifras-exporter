@@ -20,8 +20,8 @@ function PlaylistShareContent() {
   if (!playlist) return null
 
   return (
-    <div className="fade-up max-w-xl mx-auto">
-      <div className="flex flex-col items-start gap-4 mb-8">
+    <div className="fade-up">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <p className="text-[0.78rem] font-bold text-muted uppercase tracking-[0.08em] mb-1">
             Playlist compartilhada

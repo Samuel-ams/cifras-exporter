@@ -6,7 +6,7 @@ import CifraViewer from '@/views/CifraViewer'
 import AutoScrollWidget from '@/views/AutoScrollWidget'
 import PlaylistNavBar from '@/views/PlaylistNavBar'
 
-const PdfDownloadButton = dynamic(() => import('@/views/PdfDownloadButton'), { ssr: false })
+const CifraPdfDownloadButton = dynamic(() => import('@/views/CifraPdfDownloadButton'), { ssr: false })
 
 export default function CifraPage() {
   const {
@@ -57,7 +57,7 @@ export default function CifraPage() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             Minhas Cifras
           </button>
-          <h1 className="text-[2rem] font-extrabold tracking-[-0.04em] mb-0.5 leading-tight">
+          <h1 className="text-[1.5rem] sm:text-[2rem] font-extrabold tracking-[-0.04em] mb-0.5 leading-tight">
             {cifra.title}
           </h1>
           {cifra.artist && (
@@ -72,7 +72,7 @@ export default function CifraPage() {
           >
             {editing ? 'Cancelar' : 'Editar'}
           </button>
-          <PdfDownloadButton cifra={cifra} />
+          <CifraPdfDownloadButton cifra={cifra} />
           <button onClick={handleShare} className="btn-ghost flex items-center gap-1.5">
             {shareCopied ? (
               <>
@@ -92,7 +92,7 @@ export default function CifraPage() {
 
       {/* Annotation + AutoScroll toolbar */}
       {!editing && (
-        <div className="surface px-5 py-2.5 mb-3 flex gap-2 items-center flex-wrap overflow-x-auto">
+        <div className="surface px-4 sm:px-5 py-2.5 mb-3 flex gap-2 items-center overflow-x-auto">
           {/* Color mode */}
           <button
             onClick={() => setAnnotateMode((m) => m === 'color' ? null : 'color')}
@@ -173,7 +173,7 @@ export default function CifraPage() {
 
       {/* Controls bar (view mode) */}
       {!editing && (
-        <div className="surface px-6 py-4 mb-6 flex flex-wrap gap-6 items-center">
+        <div className="surface px-4 sm:px-6 py-4 mb-6 flex flex-wrap gap-4 sm:gap-6 items-center">
           {/* Transpose */}
           <div className="flex items-center gap-2.5">
             <span className="text-[0.82rem] font-semibold text-muted uppercase tracking-[0.06em]">Transpose</span>

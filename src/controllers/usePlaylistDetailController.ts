@@ -6,12 +6,14 @@ import { Playlist } from '@/models/playlist'
 import { Cifra } from '@/models/cifra'
 import { getPlaylist, savePlaylist, deletePlaylist, getAllCifras, getCifra } from '@/models/storage'
 import { buildPlaylistShareUrl } from '@/models/share'
+import { useConfirm } from '@/views/ConfirmModal'
 
 export function usePlaylistDetailController() {
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
 
+  const confirm = useConfirm()
   const [playlist, setPlaylist] = useState<Playlist | null>(null)
   const [allCifras, setAllCifras] = useState<Cifra[]>([])
   const [editingName, setEditingName] = useState(false)
@@ -45,7 +47,11 @@ export function usePlaylistDetailController() {
     patch({ cifraIds: [...playlist!.cifraIds, cifraId] })
   }
 
-  function removeCifra(cifraId: string) {
+  async function removeCifra(cifraId: string) {
+    const cifra = getCifra(cifraId)
+    if (!cifra) return
+    const ok = await confirm(`Deseja remover a cifra "${cifra.title}" da playlist "${playlist!.name}"?`)
+    if (!ok) return
     patch({ cifraIds: playlist!.cifraIds.filter((id) => id !== cifraId) })
   }
 
@@ -63,8 +69,9 @@ export function usePlaylistDetailController() {
     patch({ cifraIds: ids })
   }
 
-  function handleDelete() {
-    if (!confirm('Excluir esta playlist?')) return
+  async function handleDelete() {
+    const ok = await confirm(`Deseja excluir a playlist "${playlist!.name}"?`)
+    if (!ok) return
     deletePlaylist(id)
     router.push('/playlist')
   }

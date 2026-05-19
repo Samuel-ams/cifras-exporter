@@ -27,7 +27,7 @@ export default function CifraViewer({ lines, transpose, capo, lineColors, lineSt
 
   return (
     <div
-      className={`surface p-8 overflow-x-auto${annotateMode ? ' cursor-crosshair' : ''}`}
+      className={`surface p-4 sm:p-8 overflow-x-auto${annotateMode ? ' cursor-crosshair' : ''}`}
     >
       {capo > 0 && (
         <div
