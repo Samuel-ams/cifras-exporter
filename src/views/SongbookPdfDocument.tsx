@@ -13,6 +13,7 @@ interface Props {
   cifras: Cifra[]
   config: SongbookPdfConfig
   title?: string
+  cifraColumns?: Record<string, 1 | 2 | 3>
 }
 
 type LineItem = { line: ParsedLine; i: number }
@@ -142,7 +143,7 @@ function renderLineItem(
   return <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, customStyle?.bold, customStyle?.italic), ...cc }}>{line.content || ' '}</Text>
 }
 
-export default function SongbookPdfDocument({ cifras, config, title }: Props) {
+export default function SongbookPdfDocument({ cifras, config, title, cifraColumns }: Props) {
   const { orientation, fontSize, columns } = config
   const s = makeStyles(fontSize)
 
@@ -155,6 +156,8 @@ export default function SongbookPdfDocument({ cifras, config, title }: Props) {
           metaParts.push(`Transpose: ${cifra.transpose > 0 ? '+' : ''}${cifra.transpose}`)
         if (cifra.capo > 0) metaParts.push(`Capo na ${cifra.capo}\u00aa casa`)
 
+        const effectiveCols = cifraColumns?.[cifra.id] ?? columns
+
         return (
           <Page key={cifra.id} size="A4" orientation={orientation} style={s.page}>
             <View style={s.header}>
@@ -165,12 +168,12 @@ export default function SongbookPdfDocument({ cifras, config, title }: Props) {
             </View>
 
             {(() => {
-              if (columns > 1) {
+              if (effectiveCols > 1) {
                 const groups = groupLines(cifra.lines)
                 return (
                   <View style={s.colWrap}>
-                    {chunkGroups(groups, columns).map((chunk, colIdx) => (
-                      <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < columns - 1 ? 10 : 0 }}>
+                    {chunkGroups(groups, effectiveCols).map((chunk, colIdx) => (
+                      <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < effectiveCols - 1 ? 10 : 0 }}>
                         {chunk.map((g, gi) =>
                           g.keepTogether ? (
                             <View key={gi} wrap={false}>

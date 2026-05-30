@@ -69,6 +69,13 @@ export function usePlaylistDetailController() {
     patch({ cifraIds: ids })
   }
 
+  function setCifraColumns(cifraId: string, columns: 1 | 2 | 3 | undefined) {
+    const cols = { ...(playlist!.cifraColumns ?? {}) }
+    if (columns === undefined) delete cols[cifraId]
+    else cols[cifraId] = columns
+    patch({ cifraColumns: cols })
+  }
+
   async function handleDelete() {
     const ok = await confirm(`Deseja excluir a playlist "${playlist!.name}"?`)
     if (!ok) return
@@ -108,6 +115,7 @@ export function usePlaylistDetailController() {
     removeCifra,
     moveUp,
     moveDown,
+    setCifraColumns,
     handleDelete,
     handleShare,
     shareCopied,

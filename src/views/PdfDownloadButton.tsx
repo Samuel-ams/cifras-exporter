@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePDF, DocumentProps } from '@react-pdf/renderer'
 import { Download, X } from 'lucide-react'
 import { PdfOrientation, PdfColumns } from './PdfDocument'
@@ -90,10 +91,10 @@ export default function PdfDownloadButton({ filename, docKey, renderDocument }: 
                     </button>
                 ) : null}
 
-                {/* Preview modal */}
-                {preview && instance.url && (
+                {/* Preview modal — rendered in a portal so position:fixed is always relative to the viewport */}
+                {preview && instance.url && createPortal(
                     <div
-                        className="fixed inset-x-0 bottom-0 z-100 flex items-stretch justify-center md:-top-8 -top-6 max-h-[calc(98dvh-3.5rem)]"
+                        className="fixed inset-x-0 bottom-0 z-100 flex items-stretch justify-center px-2 md:p-0 top-16 max-h-[calc(98dvh-3.5rem)]"
                         style={{ touchAction: 'none' }}
                         onClick={() => setPreview(false)}
                     >
@@ -132,7 +133,7 @@ export default function PdfDownloadButton({ filename, docKey, renderDocument }: 
                             />
                         </div>
                     </div>
-                )}
+                , document.body)}
             </div>
 
             {/* Popover */}

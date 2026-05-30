@@ -19,6 +19,7 @@ export default function PlaylistDetailPage() {
         removeCifra,
         moveUp,
         moveDown,
+        setCifraColumns,
         handleDelete,
         handleShare,
         shareCopied,
@@ -76,7 +77,7 @@ export default function PlaylistDetailPage() {
                 </div>
                 <div className='flex gap-2 shrink-0'>
                     {playlistCifras.length >= 1 && (
-                        <PlaylistPdfDownloadButton cifras={playlistCifras} playlistName={playlist.name} />
+                        <PlaylistPdfDownloadButton cifras={playlistCifras} playlistName={playlist.name} cifraColumns={playlist.cifraColumns} />
                     )}
                     <button onClick={handleShare} className="btn-ghost flex items-center gap-1.5 min-h-9.5">
                         {shareCopied ? (
@@ -129,6 +130,23 @@ export default function PlaylistDetailPage() {
                                     <div className="min-w-0 flex-1">
                                         <p className="font-semibold text-[0.9rem] whitespace-nowrap overflow-hidden text-ellipsis">{cifra.title}</p>
                                         <p className="text-[0.78rem] text-muted">{cifra.artist || '—'}</p>
+                                    </div>
+                                    {/* Columns */}
+                                    <div className="flex items-center shrink-0" title="Colunas no PDF">
+                                        {([1, 2, 3] as const).map((n) => (
+                                            <button
+                                                key={n}
+                                                onClick={() => setCifraColumns(cifra.id, (playlist.cifraColumns?.[cifra.id] ?? 1) === n ? undefined : n)}
+                                                className={`bg-transparent border border-border text-[0.7rem] w-5 h-5 cursor-pointer leading-none ${
+                                                    (playlist.cifraColumns?.[cifra.id] ?? 1) === n
+                                                        ? 'bg-accent text-white border-accent font-bold'
+                                                        : 'text-muted'
+                                                } ${n === 1 ? 'rounded-l-(--radius)' : ''} ${n === 3 ? 'rounded-r-(--radius)' : '-ml-px'}`}
+                                                title={`${n} coluna${n > 1 ? 's' : ''} no PDF`}
+                                            >
+                                                {n}
+                                            </button>
+                                        ))}
                                     </div>
                                     {/* Reorder */}
                                     <div className="flex flex-col gap-0.5 shrink-0">
