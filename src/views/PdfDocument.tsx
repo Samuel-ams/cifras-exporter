@@ -47,21 +47,33 @@ function groupLines(lines: ParsedLine[]): LineGroup[] {
     return groups
 }
 
-/** Split groups into n columns without breaking any chord+lyric group across columns. */
-function chunkGroups(groups: LineGroup[], n: number): LineGroup[][] {
-    const total = groups.reduce((sum, g) => sum + g.items.length, 0)
-    const targetSize = Math.ceil(total / n)
+/** Approximate visual height in pt for a parsed line given a font size. */
+function lineHeightPt(line: ParsedLine, fontSize: number): number {
+    switch (line.type) {
+        case 'empty': return Math.max(3, fontSize / 2)
+        case 'section': return (fontSize - 2) * 1.2 + 16   // text + marginTop(14) + marginBottom(2)
+        case 'chord': return fontSize * 1.1
+        case 'tab': return (fontSize - 1) * 1.2
+        default: return fontSize * 1.3   // lyric
+    }
+}
+
+/** Split groups into n columns based on estimated pt height, hard-capped per column. */
+function chunkGroups(groups: LineGroup[], n: number, fontSize: number, availableHeight: number): LineGroup[][] {
+    const totalHeight = groups.reduce((sum, g) => sum + g.items.reduce((s, { line }) => s + lineHeightPt(line, fontSize), 0), 0)
+    const targetHeight = Math.min(totalHeight / n, availableHeight)
     const chunks: LineGroup[][] = []
     let current: LineGroup[] = []
-    let count = 0
+    let currentHeight = 0
     for (const group of groups) {
-        if (count >= targetSize && chunks.length < n - 1) {
+        const gh = group.items.reduce((s, { line }) => s + lineHeightPt(line, fontSize), 0)
+        if (currentHeight + gh > targetHeight && chunks.length < n - 1 && current.length > 0) {
             chunks.push(current)
             current = []
-            count = 0
+            currentHeight = 0
         }
         current.push(group)
-        count += group.items.length
+        currentHeight += gh
     }
     if (current.length > 0) chunks.push(current)
     while (chunks.length < n) chunks.push([])
@@ -163,9 +175,13 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
                     const groups = groupLines(cifra.lines)
 
                     if (columns > 1) {
+                        // Available height = A4 page minus vertical padding minus estimated header height
+                        const pageH = orientation === 'landscape' ? 595 : 842
+                        const estHeaderH = (fontSize + 10) * 1.4 + (cifra.artist ? (fontSize + 2) * 1.4 : 0) + 26
+                        const availableColH = pageH - 44 * 2 - estHeaderH
                         return (
                             <View style={{ flexDirection: 'row' }}>
-                                {chunkGroups(groups, columns).map((chunk, colIdx) => (
+                                {chunkGroups(groups, columns, fontSize, availableColH).map((chunk, colIdx) => (
                                     <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < columns - 1 ? 10 : 0 }}>
                                         {chunk.map((g, gi) =>
                                             g.keepTogether ? (
