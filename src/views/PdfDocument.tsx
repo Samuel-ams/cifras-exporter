@@ -125,12 +125,12 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
         header: { marginBottom: 18 },
         title: { fontSize: fontSize + 10, fontFamily: 'Helvetica-Bold', marginBottom: 4, color: '#111' },
         artist: { fontSize: fontSize + 2, fontFamily: 'Helvetica', color: '#555' },
-        meta: { fontSize: fontSize - 1, fontFamily: 'Helvetica', color: '#888', marginTop: 6 },
+        meta: { fontSize: Math.max(6, fontSize - 1), fontFamily: 'Helvetica', color: '#888', marginTop: 6 },
         capoNote: { fontSize: fontSize - 1, fontFamily: 'Helvetica-Bold', color: '#92400e', backgroundColor: '#fef9c3', padding: 6, marginTop: 8, marginBottom: 4 },
         sectionLabel: { fontSize: fontSize - 2, fontFamily: 'Helvetica-Bold', color: '#6366f1', marginTop: 14, marginBottom: 2, textTransform: 'uppercase' as const, letterSpacing: 1 },
         chordLine: { fontFamily: 'Courier-Bold', fontSize, color: '#1d4ed8', lineHeight: 1.1 },
         lyricLine: { fontFamily: 'Courier', fontSize, color: '#111', lineHeight: 1.3 },
-        tabLine: { fontFamily: 'Courier', fontSize: fontSize - 1, color: '#15803d', lineHeight: 1.2 },
+        tabLine: { fontFamily: 'Courier', fontSize: Math.max(6, fontSize - 1), color: '#15803d', lineHeight: 1.2 },
         empty: { height: Math.max(3, fontSize / 2) },
     }
 
@@ -161,7 +161,8 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
                                 return <Text key={i} style={{ ...s.sectionLabel, fontFamily: helveticaBoldFont(cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content.replace(/[\[\]]/g, '')}</Text>
                             case 'chord': {
                                 const content = (cifra.transpose !== 0 ? transposeLine(line.content, cifra.transpose) : line.content).replace(/ /g, '\u00a0')
-                                return <Text key={i} style={{ ...s.chordLine, fontFamily: courierFont(true, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{content}</Text>
+                                const lyricPresence = Math.ceil(s.lyricLine.fontSize * 1.5)
+                                return <Text key={i} minPresenceAhead={lyricPresence} style={{ ...s.chordLine, fontFamily: courierFont(true, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{content}</Text>
                             }
                             case 'tab':
                                 return <Text key={i} style={{ ...s.tabLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content}</Text>
