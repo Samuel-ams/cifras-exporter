@@ -32,6 +32,20 @@ export default function PdfDownloadButton({ filename, docKey, renderDocument }: 
     const renderRef = useRef(renderDocument)
     useEffect(() => { renderRef.current = renderDocument })
 
+    useEffect(() => {
+        if (preview) {
+            document.body.style.overflow = 'hidden'
+            document.body.style.touchAction = 'none'
+        } else {
+            document.body.style.overflow = ''
+            document.body.style.touchAction = ''
+        }
+        return () => {
+            document.body.style.overflow = ''
+            document.body.style.touchAction = ''
+        }
+    }, [preview])
+
     const [instance, update] = usePDF({ document: renderDocument({ orientation, fontSize, columns }) })
 
     useEffect(() => {
@@ -68,7 +82,7 @@ export default function PdfDownloadButton({ filename, docKey, renderDocument }: 
                     </button>
                 ) : instance.url ? (
                     <button
-                        onClick={() => setPreview(true)}
+                        onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setPreview(true) }}
                         className="btn-ghost min-w-14"
                         style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                     >
@@ -79,12 +93,13 @@ export default function PdfDownloadButton({ filename, docKey, renderDocument }: 
                 {/* Preview modal */}
                 {preview && instance.url && (
                     <div
-                        className="fixed inset-x-0 bottom-0 z-100 flex items-stretch justify-center overflow-auto md:-top-8 -top-6 max-h-[calc(98dvh-3.5rem)]"
+                        className="fixed inset-x-0 bottom-0 z-100 flex items-stretch justify-center md:-top-8 -top-6 max-h-[calc(98dvh-3.5rem)]"
+                        style={{ touchAction: 'none' }}
                         onClick={() => setPreview(false)}
                     >
                         <div
                             className="bg-surface flex flex-col w-full h-full border border-border max-w-4xl overflow-hidden rounded-t-(--radius)"
-                            style={{ boxShadow: 'var(--shadow-lg)' }}
+                            style={{ boxShadow: 'var(--shadow-lg)', touchAction: 'auto' }}
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Modal header */}
