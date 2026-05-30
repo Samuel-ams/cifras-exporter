@@ -12,12 +12,84 @@ export interface SongbookPdfConfig {
 interface Props {
   cifras: Cifra[]
   config: SongbookPdfConfig
+  title?: string
 }
 
-/** Split an array into `n` roughly-equal vertical chunks. */
-function chunkLines<T>(arr: T[], n: number): T[][] {
-  const size = Math.ceil(arr.length / n)
-  return Array.from({ length: n }, (_, i) => arr.slice(i * size, i * size + size))
+type LineItem = { line: ParsedLine; i: number }
+type LineGroup = { items: LineItem[]; keepTogether: boolean }
+
+/** Group chord lines with their immediately following lyric line so they stay together. */
+function groupLines(lines: ParsedLine[]): LineGroup[] {
+  const groups: LineGroup[] = []
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+    if (line.type === 'chord') {
+      const items: LineItem[] = [{ line, i }]
+      let j = i + 1
+      while (j < lines.length && lines[j].type === 'chord') {
+        items.push({ line: lines[j], i: j })
+        j++
+      }
+      if (j < lines.length && lines[j].type === 'lyric') {
+        items.push({ line: lines[j], i: j })
+        j++
+      }
+      groups.push({ items, keepTogether: true })
+      i = j
+    } else {
+      groups.push({ items: [{ line, i }], keepTogether: false })
+      i++
+    }
+  }
+  return groups
+}
+
+/** Split groups into n columns without breaking any chord+lyric group across columns. */
+function chunkGroups(groups: LineGroup[], n: number): LineGroup[][] {
+  const total = groups.reduce((sum, g) => sum + g.items.length, 0)
+  const targetSize = Math.ceil(total / n)
+  const chunks: LineGroup[][] = []
+  let current: LineGroup[] = []
+  let count = 0
+  for (const group of groups) {
+    if (count >= targetSize && chunks.length < n - 1) {
+      chunks.push(current)
+      current = []
+      count = 0
+    }
+    current.push(group)
+    count += group.items.length
+  }
+  if (current.length > 0) chunks.push(current)
+  while (chunks.length < n) chunks.push([])
+
+  // Move trailing orphaned chord-only groups and section labels to the next column.
+  // Scan backwards through trailing empty lines to detect orphans beneath them.
+  for (let ci = 0; ci < chunks.length - 1; ci++) {
+    const chunk = chunks[ci]
+    if (chunk.length === 0) continue
+    let cutAt = chunk.length  // last "safe" boundary (keep-all by default)
+    let scan = chunk.length
+    while (scan > 1) {
+      const g = chunk[scan - 1]
+      const lastType = g.items[g.items.length - 1].line.type
+      if (lastType === 'empty') { scan--; continue }  // skip empties, keep scanning
+      const isOrphanChord = g.keepTogether && lastType !== 'lyric'
+      const isSection = lastType === 'section'
+      if (isOrphanChord || isSection) {
+        cutAt = scan - 1  // trim from before this orphan (includes trailing empties)
+        scan--
+      } else {
+        break
+      }
+    }
+    if (cutAt < chunk.length) {
+      chunks[ci + 1].unshift(...chunk.splice(cutAt))
+    }
+  }
+
+  return chunks
 }
 
 function courierFont(baseBold: boolean, bold?: boolean, italic?: boolean) {
@@ -48,33 +120,34 @@ function makeStyles(fontSize: number) {
   })
 }
 
-function renderLine(
-  line: ParsedLine,
-  i: number,
+function renderLineItem(
+  { line, i }: LineItem,
   transpose: number,
   s: ReturnType<typeof makeStyles>,
-  customColor?: string,
-  customStyle?: { bold?: boolean; italic?: boolean },
+  lineColors?: Record<number, string>,
+  lineStyles?: Record<number, { bold?: boolean; italic?: boolean }>,
 ) {
-  const cc = customColor ? { color: customColor } : {}
+  const cc = lineColors?.[i] ? { color: lineColors[i] } : {}
+  const customStyle = lineStyles?.[i]
+  const lyricPresence = Math.ceil(s.lyricLine.fontSize * 1.5)
   if (line.type === 'empty') return <View key={i} style={s.empty} />
   if (line.type === 'section')
     return <Text key={i} style={{ ...s.sectionLabel, fontFamily: helveticaBoldFont(customStyle?.italic), ...cc }}>{line.content.replace(/[\[\]]/g, '')}</Text>
   if (line.type === 'chord') {
-    const content = transpose !== 0 ? transposeLine(line.content, transpose) : line.content
-    return <Text key={i} style={{ ...s.chordLine, fontFamily: courierFont(true, customStyle?.bold, customStyle?.italic), ...cc }}>{content}</Text>
+    const content = (transpose !== 0 ? transposeLine(line.content, transpose) : line.content).replace(/ /g, '\u00a0')
+    return <Text key={i} minPresenceAhead={lyricPresence} style={{ ...s.chordLine, fontFamily: courierFont(true, customStyle?.bold, customStyle?.italic), ...cc }}>{content}</Text>
   }
   if (line.type === 'tab')
     return <Text key={i} style={{ ...s.tabLine, fontFamily: courierFont(false, customStyle?.bold, customStyle?.italic), ...cc }}>{line.content}</Text>
   return <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, customStyle?.bold, customStyle?.italic), ...cc }}>{line.content || ' '}</Text>
 }
 
-export default function SongbookPdfDocument({ cifras, config }: Props) {
+export default function SongbookPdfDocument({ cifras, config, title }: Props) {
   const { orientation, fontSize, columns } = config
   const s = makeStyles(fontSize)
 
   return (
-    <Document>
+    <Document title={title}>
       {cifras.map((cifra) => {
         const metaParts: string[] = []
         if (cifra.tone) metaParts.push(`Tom: ${cifra.tone}`)
@@ -91,19 +164,33 @@ export default function SongbookPdfDocument({ cifras, config }: Props) {
               {cifra.capo > 0 ? <Text style={s.capoNote}>Capo na {cifra.capo}\u00aa casa</Text> : null}
             </View>
 
-            {columns > 1 ? (
-              <View style={s.colWrap}>
-                {chunkLines(cifra.lines.map((line, i) => ({ line, i })), columns).map((chunk, colIdx) => (
-                  <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < columns - 1 ? 10 : 0 }}>
-                    {chunk.map(({ line, i }) => renderLine(line, i, cifra.transpose, s, cifra.lineColors?.[i], cifra.lineStyles?.[i]))}
+            {(() => {
+              if (columns > 1) {
+                const groups = groupLines(cifra.lines)
+                return (
+                  <View style={s.colWrap}>
+                    {chunkGroups(groups, columns).map((chunk, colIdx) => (
+                      <View key={colIdx} style={{ flex: 1, paddingRight: colIdx < columns - 1 ? 10 : 0 }}>
+                        {chunk.map((g, gi) =>
+                          g.keepTogether ? (
+                            <View key={gi} wrap={false}>
+                              {g.items.map(item => renderLineItem(item, cifra.transpose, s, cifra.lineColors, cifra.lineStyles))}
+                            </View>
+                          ) : (
+                            g.items.map(item => renderLineItem(item, cifra.transpose, s, cifra.lineColors, cifra.lineStyles))
+                          )
+                        )}
+                      </View>
+                    ))}
                   </View>
-                ))}
-              </View>
-            ) : (
-              <View>
-                {cifra.lines.map((line, i) => renderLine(line, i, cifra.transpose, s, cifra.lineColors?.[i], cifra.lineStyles?.[i]))}
-              </View>
-            )}
+                )
+              }
+              return (
+                <View>
+                  {cifra.lines.map((line, i) => renderLineItem({ line, i }, cifra.transpose, s, cifra.lineColors, cifra.lineStyles))}
+                </View>
+              )
+            })()}
           </Page>
         )
       })}

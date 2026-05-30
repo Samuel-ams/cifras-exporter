@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { usePDF, DocumentProps } from '@react-pdf/renderer'
+import { Download, X } from 'lucide-react'
 import { PdfOrientation, PdfColumns } from './PdfDocument'
 
 const FONT_SIZES = [8, 9, 10, 11, 12, 14] as const
@@ -41,80 +42,83 @@ export default function PdfDownloadButton({ filename, docKey, renderDocument }: 
     return (
         <div className="relative inline-flex">
             {/* Settings toggle */}
-            <button
-                onClick={() => setOpen((o) => !o)}
-                className="btn-ghost"
-                aria-label="Opções do PDF"
-                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRight: 'none', padding: '0.5rem 0.625rem' }}
-                title="Opções do PDF"
-            >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.07 4.93a10 10 0 0 1 1.41 1.41M4.93 4.93A10 10 0 0 0 3.52 6.34M19.07 19.07a10 10 0 0 1-1.41 1.41M4.93 19.07A10 10 0 0 0 6.34 20.48" />
-                    <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
-                </svg>
-            </button>
-
-            {/* Preview / Download */}
-            {instance.loading ? (
+            <div className='flex'>
                 <button
-                    disabled
-                    className="btn-ghost opacity-50 cursor-wait"
-                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                    onClick={() => setOpen((o) => !o)}
+                    className="btn-ghost min-w-8.5 w-8 h-9.5"
+                    aria-label="Opções do PDF"
+                    style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0, borderRight: 'none', padding: '0.5rem 0.625rem' }}
+                    title="Opções do PDF"
                 >
-                    Gerando...
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.07 4.93a10 10 0 0 1 1.41 1.41M4.93 4.93A10 10 0 0 0 3.52 6.34M19.07 19.07a10 10 0 0 1-1.41 1.41M4.93 19.07A10 10 0 0 0 6.34 20.48" />
+                        <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+                    </svg>
                 </button>
-            ) : instance.url ? (
-                <button
-                    onClick={() => setPreview(true)}
-                    className="btn-ghost w-18 p-0"
-                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                >
-                    ↓ PDF
-                </button>
-            ) : null}
 
-            {/* Preview modal */}
-            {preview && instance.url && (
-                <div
-                    className="fixed inset-0 z-100 flex items-center justify-center sm:p-4"
-                    style={{ background: 'rgba(0,0,0,0.75)' }}
-                    onClick={() => setPreview(false)}
-                >
-                    <div
-                        className="bg-surface flex flex-col w-full h-full sm:border sm:border-border sm:max-w-4xl sm:h-[88vh] overflow-hidden sm:rounded-(--radius)"
-                        style={{ boxShadow: 'var(--shadow-lg)' }}
-                        onClick={(e) => e.stopPropagation()}
+                {/* Preview / Download */}
+                {instance.loading ? (
+                    <button
+                        disabled
+                        className="btn-ghost opacity-50 cursor-wait"
+                        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                     >
-                        {/* Modal header */}
-                        <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border shrink-0">
-                            <span className="font-semibold text-sm text-text truncate">{filename}</span>
-                            <div className="flex gap-2 shrink-0">
-                                <a
-                                    href={instance.url}
-                                    download={filename}
-                                    className="btn-accent no-underline text-sm"
-                                >
-                                    ↓ Baixar
-                                </a>
-                                <button
-                                    onClick={() => setPreview(false)}
-                                    className="btn-ghost text-sm"
-                                    aria-label="Fechar preview"
-                                >
-                                    ✕
-                                </button>
+                        Gerando...
+                    </button>
+                ) : instance.url ? (
+                    <button
+                        onClick={() => setPreview(true)}
+                        className="btn-ghost min-w-14"
+                        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                    >
+                        PDF
+                    </button>
+                ) : null}
+
+                {/* Preview modal */}
+                {preview && instance.url && (
+                    <div
+                        className="fixed inset-x-0 bottom-0 z-100 flex items-stretch justify-center overflow-auto md:-top-8 -top-6 max-h-[calc(98dvh-3.5rem)]"
+                        onClick={() => setPreview(false)}
+                    >
+                        <div
+                            className="bg-surface flex flex-col w-full h-full border border-border max-w-4xl overflow-hidden rounded-t-(--radius)"
+                            style={{ boxShadow: 'var(--shadow-lg)' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal header */}
+                            <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border shrink-0">
+                                <span className="font-semibold text-sm text-text truncate">{filename}</span>
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <a
+                                        href={instance.url!}
+                                        download={filename}
+                                        className="btn-ghost text-sm"
+                                        aria-label="Baixar PDF"
+                                        title="Baixar"
+                                    >
+                                        <Download size={15} />
+                                    </a>
+                                    <button
+                                        onClick={() => setPreview(false)}
+                                        className="btn-ghost text-sm"
+                                        aria-label="Fechar preview"
+                                    >
+                                        <X size={15} />
+                                    </button>
+                                </div>
                             </div>
+                            {/* PDF iframe */}
+                            <iframe
+                                src={instance.url}
+                                className="flex-1"
+                                title={filename}
+                            />
                         </div>
-                        {/* PDF iframe */}
-                        <iframe
-                            src={instance.url}
-                            className="flex-1 w-full border-none"
-                            title="Preview do PDF"
-                        />
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Popover */}
             {open && (

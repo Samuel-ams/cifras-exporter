@@ -41,8 +41,8 @@ export default function PlaylistDetailPage() {
             </button>
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-                <div className="flex items-center gap-3 min-w-2xl">
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+                <div className='flex flex-1 min-w-0'>
                     {editingName ? (
                         <div className="flex items-center gap-2">
                             <input
@@ -57,13 +57,13 @@ export default function PlaylistDetailPage() {
                             <button onClick={() => setEditingName(false)} className="btn-ghost">Cancelar</button>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-[1.4rem] sm:text-[1.8rem] font-extrabold tracking-[-0.04em] leading-tight">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <h1 className="text-[1.4rem] sm:text-[1.8rem] font-extrabold tracking-[-0.04em] leading-tight truncate min-w-0">
                                 {playlist.name}
                             </h1>
                             <button
                                 onClick={() => setEditingName(true)}
-                                className="btn-ghost p-1.5"
+                                className="btn-ghost min-h-9.5"
                                 title="Renomear playlist"
                             >
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -74,7 +74,7 @@ export default function PlaylistDetailPage() {
                         </div>
                     )}
                 </div>
-                <div className="w-full flex gap-2 items-center md:justify-end">
+                <div className='flex gap-2 shrink-0'>
                     {playlistCifras.length >= 1 && (
                         <PlaylistPdfDownloadButton cifras={playlistCifras} playlistName={playlist.name} />
                     )}
@@ -157,7 +157,7 @@ export default function PlaylistDetailPage() {
                                         className="bg-transparent border-none cursor-pointer text-danger text-base leading-none shrink-0 px-0.5"
                                         title="Remover da playlist"
                                     >
-                                        ×
+                                        x
                                     </button>
                                 </div>
                             ))}

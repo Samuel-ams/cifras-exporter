@@ -17,7 +17,7 @@ export default function PlaylistPdfDownloadButton({ cifras, playlistName }: Prop
     .join(',')
 
   const renderDocument = (config: PdfConfig) => (
-    <SongbookPdfDocument cifras={cifras} config={config} />
+    <SongbookPdfDocument cifras={cifras} config={config} title={playlistName} />
   )
 
   return <PdfDownloadButton filename={filename} docKey={docKey} renderDocument={renderDocument} />
