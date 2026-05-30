@@ -153,8 +153,10 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
                             }
                             case 'tab':
                                 return <Text key={i} style={{ ...s.tabLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content}</Text>
-                            default:
-                                return <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{line.content || ' '}</Text>
+                            default: {
+                                const lyric = (line.content || ' ').replace(/^ +/, m => m.replace(/ /g, '\u00a0'))
+                                return <Text key={i} style={{ ...s.lyricLine, fontFamily: courierFont(false, cs?.bold, cs?.italic), ...(cc ? { color: cc } : {}) }}>{lyric}</Text>
+                            }
                         }
                     }
 
