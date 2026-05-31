@@ -116,8 +116,6 @@ interface Props {
 export default function PdfDocument({ cifra, orientation = 'portrait', fontSize = 10, columns = 1 }: Props) {
     const metaParts: string[] = []
     if (cifra.tone) metaParts.push(`Tom: ${cifra.tone}`)
-    if (cifra.transpose !== 0)
-        metaParts.push(`Transpose: ${cifra.transpose > 0 ? '+' : ''}${cifra.transpose}`)
     if (cifra.capo > 0) metaParts.push(`Capo na ${cifra.capo}ª casa`)
 
     const s = {
@@ -126,7 +124,6 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
         title: { fontSize: fontSize + 10, fontFamily: 'Helvetica-Bold', marginBottom: 4, color: '#111' },
         artist: { fontSize: fontSize + 2, fontFamily: 'Helvetica', color: '#555' },
         meta: { fontSize: Math.max(6, fontSize - 1), fontFamily: 'Helvetica', color: '#888', marginTop: 6 },
-        // capoNote: { fontSize: fontSize - 1, fontFamily: 'Helvetica-Bold', color: '#92400e', backgroundColor: '#fef9c3', padding: 6, marginTop: 8, marginBottom: 4 },
         sectionLabel: { fontSize: fontSize - 2, fontFamily: 'Helvetica-Bold', color: '#6366f1', marginTop: 14, marginBottom: 2, textTransform: 'uppercase' as const, letterSpacing: 1 },
         chordLine: { fontFamily: 'Courier-Bold', fontSize, color: '#1d4ed8', lineHeight: 1.1 },
         lyricLine: { fontFamily: 'Courier', fontSize, color: '#111', lineHeight: 1.3 },
