@@ -126,7 +126,7 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
         title: { fontSize: fontSize + 10, fontFamily: 'Helvetica-Bold', marginBottom: 4, color: '#111' },
         artist: { fontSize: fontSize + 2, fontFamily: 'Helvetica', color: '#555' },
         meta: { fontSize: Math.max(6, fontSize - 1), fontFamily: 'Helvetica', color: '#888', marginTop: 6 },
-        capoNote: { fontSize: fontSize - 1, fontFamily: 'Helvetica-Bold', color: '#92400e', backgroundColor: '#fef9c3', padding: 6, marginTop: 8, marginBottom: 4 },
+        // capoNote: { fontSize: fontSize - 1, fontFamily: 'Helvetica-Bold', color: '#92400e', backgroundColor: '#fef9c3', padding: 6, marginTop: 8, marginBottom: 4 },
         sectionLabel: { fontSize: fontSize - 2, fontFamily: 'Helvetica-Bold', color: '#6366f1', marginTop: 14, marginBottom: 2, textTransform: 'uppercase' as const, letterSpacing: 1 },
         chordLine: { fontFamily: 'Courier-Bold', fontSize, color: '#1d4ed8', lineHeight: 1.1 },
         lyricLine: { fontFamily: 'Courier', fontSize, color: '#111', lineHeight: 1.3 },
@@ -144,9 +144,6 @@ export default function PdfDocument({ cifra, orientation = 'portrait', fontSize 
                     {cifra.artist ? <Text style={s.artist}>{cifra.artist}</Text> : null}
                     {metaParts.length > 0 ? (
                         <Text style={s.meta}>{metaParts.join('  •  ')}</Text>
-                    ) : null}
-                    {cifra.capo > 0 ? (
-                        <Text style={s.capoNote}>Capo na {cifra.capo}ª casa</Text>
                     ) : null}
                 </View>
 
